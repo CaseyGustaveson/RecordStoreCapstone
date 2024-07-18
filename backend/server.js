@@ -173,7 +173,7 @@ app.delete('/api/reviews/:id', (req, res) => {
   res.json({ message: `Delete review with id ${id}` });
 })
 
-// Start server
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

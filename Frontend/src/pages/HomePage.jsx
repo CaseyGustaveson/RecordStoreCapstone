@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Typography, Grid, CircularProgress, Alert } from '@mui/material';
 import axios from 'axios';
 import ProductCard from '../components/ProductCard';
-
+import Hero from '../components/Hero'; // Import Hero component
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
@@ -29,8 +29,9 @@ const HomePage = () => {
 
   return (
     <Container>
+      <Hero /> {/* Include Hero component */}
       <Typography variant="h2" gutterBottom>
-        Welcome to the Record Shop
+        Our Products
       </Typography>
       <Grid container spacing={4}>
         {products.map((product) => (

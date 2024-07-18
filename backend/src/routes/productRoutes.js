@@ -7,9 +7,9 @@ import { authenticateToken, isAdmin } from '../middleware/authMiddleware.js';
 router.use(express.json());
 
 // Routes
-router.get('/', authenticateToken, isAdmin, productController.getProducts);
-router.get('/search', authenticateToken, productController.searchProducts);
-router.get('/:id', authenticateToken, productController.getProductById);
+router.get('/', productController.getProducts);
+router.get('/search', productController.searchProducts);
+router.get('/:id', productController.getProductById);
 router.post('/', authenticateToken, isAdmin, productController.createProduct);
 router.put('/:id', authenticateToken, isAdmin, productController.updateProduct);
 router.delete('/:id', authenticateToken, isAdmin, productController.deleteProduct);
