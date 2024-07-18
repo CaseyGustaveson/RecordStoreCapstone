@@ -8,6 +8,7 @@ router.use(express.json());
 
 // Routes
 router.get('/', authenticateToken, isAdmin, productController.getProducts);
+router.get('/search', authenticateToken, productController.searchProducts);
 router.get('/:id', authenticateToken, productController.getProductById);
 router.post('/', authenticateToken, isAdmin, productController.createProduct);
 router.put('/:id', authenticateToken, isAdmin, productController.updateProduct);

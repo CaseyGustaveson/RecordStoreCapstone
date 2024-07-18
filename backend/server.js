@@ -1,14 +1,18 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
+import cors from 'cors';
 import {isAdmin } from './src/middleware/isAdmin.js';
 
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Middleware to parse JSON bodies
+
 app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:5173',
+}));
 
 // Routes
 import authRoutes from './src/routes/authRoutes.js';
@@ -21,14 +25,14 @@ import userRoutes from './src/routes/userRoutes.js';
 import reviewRoute from './src/routes/reviewRoute.js';
 
 // Route middleware
-app.use('/auth', authRoutes);
-app.use('/cart', cartRoutes);
-app.use('/category', categoryRoutes);
-app.use('/orders', orderRoutes);
-app.use('/products', productRoutes);
-app.use('/profile', profileRoutes);
-app.use('/users', userRoutes);
-app.use('/review', reviewRoute);
+app.use('/api/auth', authRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/category', categoryRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/review', reviewRoute);
 
 // Default route
 app.get('/', (req, res) => {

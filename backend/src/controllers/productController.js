@@ -12,6 +12,7 @@ const getProducts = async (req, res) => {
     }
 };
 
+// Get a product by ID
 const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -29,6 +30,7 @@ const getProductById = async (req, res) => {
     }
 };
 
+// Create a new product
 const createProduct = async (req, res) => {
     try {
         const { name, description, price, quantity, categoryId, imageUrl } = req.body;
@@ -61,6 +63,7 @@ const createProduct = async (req, res) => {
     }
 };
 
+// Update a product
 const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
@@ -107,4 +110,23 @@ const deleteProduct = async (req, res) => {
     }
 };
 
-export default { getProducts, getProductById, createProduct, updateProduct, deleteProduct };
+const searchProducts = async (req, res) => {
+    const { query } = req.query;
+
+    if (!query) {
+        return res.status(400).json({ error: 'Add something to search' });
+    }
+
+    try {
+        const products = await prisma.product.findMany({
+            where: { name: { contains: query, mode: 'insensitive' } },
+        });
+        res.status(200).json(products);
+    } catch (error) {
+        console.error('Error searching products:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+export default { getProducts, getProductById, createProduct, updateProduct, deleteProduct, searchProducts };
