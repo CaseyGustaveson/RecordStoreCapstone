@@ -1,0 +1,88 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  username    String?   @unique
+  firstname   String?
+  lastname    String?
+  email       String?   @unique
+  phone       String?
+  password    String
+  role        Role      @default(USER)
+  address     String?
+  orders      Order[]
+  cartItems   CartItem[]
+  ratings     Rating[]
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  quantity    Int
+  categoryId  Int
+  category    Category  @relation(fields: [categoryId], references: [id])
+  imageUrl    String?   // New field for storing image URL
+  ratings     Rating[]
+  reviews     String[]
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  products    Product[]
+}
+
+model Order {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  total       Float
+  status      String    @default("PENDING")
+  orderItems  OrderItem[]
+  createdAt   DateTime  @default(now())
+}
+
+model OrderItem {
+  id          Int       @id @default(autoincrement())
+  orderId     Int
+  productId   Int
+  quantity    Int
+  product     Product   @relation(fields: [productId], references: [id])
+  order       Order     @relation(fields: [orderId], references: [id])
+}
+
+model CartItem {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  productId   Int
+  quantity    Int
+  product     Product   @relation(fields: [productId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model Rating {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  productId   Int
+  rating      Int       @default(1)
+  review      String?
+  comment     String?
+  user        User      @relation(fields: [userId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
