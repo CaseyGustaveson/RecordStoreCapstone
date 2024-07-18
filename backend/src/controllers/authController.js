@@ -1,7 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const prisma = new PrismaClient();
 
@@ -19,7 +20,7 @@ export const register = async (req, res) => {
 
     // Create JWT payload and sign it
     const payload = { id: newUser.id, username: newUser.username, email: newUser.email, role: newUser.role };
-    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '45m' });
     res.status(200).json({ accessToken, user: newUser });
   } catch (error) {
     console.error('Error in register function:', error);
@@ -43,7 +44,7 @@ export const login = async (req, res) => {
     if (isPasswordCorrect) {
       // Create JWT payload and sign it
       const payload = { id: user.id, username: user.username, email: user.email, role: user.role };
-      const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+      const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '45m' });
       res.status(200).json({ accessToken, user });
     } else {
       console.log('Invalid Credentials: Incorrect password');

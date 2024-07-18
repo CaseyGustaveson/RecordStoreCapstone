@@ -1,8 +1,9 @@
-import { PrismaClient } from '@prisma/client';  
+import { PrismaClient } from '@prisma/client';
+import exp from 'constants';
 const prisma = new PrismaClient();
 
 // Get all categories
-const getCategories = async (req, res) => {
+export const getCategories = async (req, res) => {
     try {
         const categories = await prisma.category.findMany();
         res.status(200).json(categories);
@@ -12,7 +13,8 @@ const getCategories = async (req, res) => {
     }
 };
 
-const getCategoryById = async (req, res) => {
+// Get category by ID
+export const getCategoryById = async (req, res) => {
     try {
         const { id } = req.params;
         const category = await prisma.category.findUnique({
@@ -29,7 +31,8 @@ const getCategoryById = async (req, res) => {
     }
 };
 
-const createCategory = async (req, res) => {
+// Create a new category
+export const createCategory = async (req, res) => {
     try {
         const { name } = req.body;
         const newCategory = await prisma.category.create({
@@ -42,7 +45,8 @@ const createCategory = async (req, res) => {
     }
 };
 
-const updateCategory = async (req, res) => {
+// Update a category
+export const updateCategory = async (req, res) => {
     try {
         const { id } = req.params;
         const { name } = req.body;
@@ -57,7 +61,8 @@ const updateCategory = async (req, res) => {
     }
 };
 
-const deleteCategory = async (req, res) => {
+// Delete a category
+export const deleteCategory = async (req, res) => {
     try {
         const { id } = req.params;
         await prisma.category.delete({ where: { id: parseInt(id) } });

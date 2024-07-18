@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { dot } from "node:test/reporters";
 const prisma = new PrismaClient();
-dot.env.config();
+import dotenv from "dotenv";
+dotenv.config();
 
 async function clearDatabase() {
   try {
