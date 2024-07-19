@@ -98,7 +98,7 @@ const updateProduct = async (req, res) => {
     }
 };
 
-// Delete a product by ID (accessible only to admins)
+
 const deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;

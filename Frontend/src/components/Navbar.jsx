@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, Button, IconButton, TextField } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
+
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -13,6 +16,19 @@ const Navbar = () => {
     // Implement search logic here
     console.log('Search term:', searchTerm);
   };
+
+  const handleLoginClick = () => {
+    navigate('/login');
+  }
+  const handleRegisterClick = () => {
+    navigate('/register');
+  }
+  const handleHomeClick = () => {
+    navigate('/');
+  }
+  const handleProductClick = () => {
+    navigate('/products');
+  }
 
   return (
     <AppBar position="static">
@@ -37,10 +53,10 @@ const Navbar = () => {
           style={{ marginRight: '16px', width: '200px' }}
         />
         <Button color="inherit" onClick={handleSearchSubmit}>Search</Button>
-        <Button color="inherit">Home</Button>
-        <Button color="inherit">Shop</Button>
-        <Button color="inherit">Register</Button>
-        <Button color="inherit">Login</Button>
+        <Button color="inherit"onClick={handleHomeClick}>Home</Button>
+        <Button color="inherit"onClick={handleProductClick}>Shop</Button>
+        <Button color="inherit"oncClick={handleRegisterClick}>Register</Button>
+        <Button color="inherit" onClick={handleLoginClick}>Login</Button>
         <IconButton color="inherit">
           <ShoppingCartIcon />
         </IconButton>

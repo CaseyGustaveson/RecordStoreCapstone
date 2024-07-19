@@ -29,13 +29,12 @@ const HomePage = () => {
 
   return (
     <Container>
-      <Hero /> {/* Include Hero component */}
       <Typography variant="h2" gutterBottom>
-        Our Products
+        On Sale:
       </Typography>
       <Grid container spacing={4}>
         {products.map((product) => (
-          <Grid item xs={12} sm={6} md={4} key={product.id}>
+          <Grid item xs={12} sm={7} md={4} key={product.id}>
             <ProductCard product={product} />
           </Grid>
         ))}

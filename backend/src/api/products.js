@@ -73,13 +73,3 @@ export const getProductsBySearch = async (search) => {
         return null;
     }
 }
-
-export const getProductsByPrice = async (price) => {
-    try {
-        const response = await axios.get(`${API_URL}/price/${price}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching products by price:', error);
-        return null;
-    }
-}
