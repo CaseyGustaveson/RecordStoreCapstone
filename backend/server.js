@@ -24,6 +24,7 @@ import profileRoutes from './src/routes/profileRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
 import reviewRoute from './src/routes/reviewRoute.js';
 
+
 // Route middleware
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
@@ -34,6 +35,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/review', reviewRoute);
 
+
 // Default route
 app.get('/', (req, res) => {
   res.send('Hello friend!');
@@ -43,6 +45,7 @@ app.get('/', (req, res) => {
 app.get('/admin', isAdmin, (req, res) => {
   res.send('Welcome to the admin dashboard!');
 });
+
 
 // Example API routes for categories
 app.get('/api/category', (req, res) => {
@@ -172,6 +175,13 @@ app.delete('/api/reviews/:id', (req, res) => {
   const { id } = req.params;
   res.json({ message: `Delete review with id ${id}` });
 })
+
+app.get('/auth/login', (req, res) => {
+  res.json({ message: 'Login' });
+});
+app.get('/auth/register', (req, res) => {
+  res.json({ message: 'Register' });
+});
 
 
 app.listen(port, () => {

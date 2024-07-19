@@ -13,7 +13,7 @@ const Navbar = () => {
   };
 
   const handleSearchSubmit = () => {
-    // Implement search logic here
+ navigate(`/search/${searchTerm}`);
     console.log('Search term:', searchTerm);
   };
 
@@ -55,7 +55,7 @@ const Navbar = () => {
         <Button color="inherit" onClick={handleSearchSubmit}>Search</Button>
         <Button color="inherit"onClick={handleHomeClick}>Home</Button>
         <Button color="inherit"onClick={handleProductClick}>Shop</Button>
-        <Button color="inherit"oncClick={handleRegisterClick}>Register</Button>
+        <Button color="inherit"onClick={handleRegisterClick}>Register</Button>
         <Button color="inherit" onClick={handleLoginClick}>Login</Button>
         <IconButton color="inherit">
           <ShoppingCartIcon />

@@ -57,7 +57,7 @@ async function seedDatabase() {
           firstname: 'Jane',
           lastname: 'Smith',
           email: 'jane.smith@example.com',
-          password: await bcrypt.hash('securePassword', 10), 
+          password: await bcrypt.hash('securePassword', 10),
         },
         {
           username: 'admin',
@@ -91,7 +91,6 @@ async function seedDatabase() {
       price: (index + 1) * 10 - 0.01,
       quantity: index + 1,
       categoryId: category.id,
-      reviews:["Great product", "Good product", "Okay product"],
     }));
 
     let createdProducts = [];
@@ -171,40 +170,10 @@ async function seedDatabase() {
       data: orderItemsData,
     });
     console.log("OrderItems created:", createdOrderItems);
-
-    // Create Ratings
-    const ratingsData = [
-      {
-        userId: createdUsers[0].id,
-        productId: createdProducts[0].id,
-        rating: 5,
-        review: "Great product!",
-      },
-      {
-        userId: createdUsers[1].id,
-        productId: createdProducts[1].id,
-        rating: 4,
-        review: "Good product!",
-      },
-      {
-        userId: createdUsers[2].id,
-        productId: createdProducts[2].id,
-        rating: 3,
-        review: "Okay product!",
-      },
-    ];
-
-    const createdRatings = await prisma.rating.createMany({
-      data: ratingsData,
-    });
-    console.log("Ratings created:", createdRatings);
-
-    console.log("Database seeded successfully.");
   } catch (error) {
     console.error("Error seeding database:", error);
-  } finally {
-    await prisma.$disconnect();
   }
 }
+    
 
-seedDatabase();
+seedDatabase()

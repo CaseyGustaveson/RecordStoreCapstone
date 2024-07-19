@@ -19,7 +19,6 @@ model User {
   address     String?
   orders      Order[]
   cartItems   CartItem[]
-  ratings     Rating[]
 }
 
 model Product {
@@ -31,8 +30,6 @@ model Product {
   categoryId  Int
   category    Category  @relation(fields: [categoryId], references: [id])
   imageUrl    String?   // New field for storing image URL
-  ratings     Rating[]
-  reviews     String[]
   cartItems   CartItem[]
   orderItems  OrderItem[]
 }
@@ -69,17 +66,6 @@ model CartItem {
   quantity    Int
   product     Product   @relation(fields: [productId], references: [id])
   user        User      @relation(fields: [userId], references: [id])
-}
-
-model Rating {
-  id          Int       @id @default(autoincrement())
-  userId      Int
-  productId   Int
-  rating      Int       @default(1)
-  review      String?
-  comment     String?
-  user        User      @relation(fields: [userId], references: [id])
-  product     Product   @relation(fields: [productId], references: [id])
 }
 
 enum Role {
