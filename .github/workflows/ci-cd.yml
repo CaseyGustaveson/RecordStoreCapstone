@@ -19,12 +19,20 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '20' 
+        node-version: '20'
 
     - name: Install dependencies
       run: npm install
 
-    - name: Deploy
+    - name: Run tests
+      run: npm test
+      continue-on-error: true # Optional: Continue even if tests fail
+
+    - name: Build project
+      run: npm run build
+      continue-on-error: true # Optional: Continue even if build fails
+
+    - name: Deploy to Heroku
       run: |
         git remote add heroku https://git.heroku.com/record-store-capstone.git
         git push heroku main
