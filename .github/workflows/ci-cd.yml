@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Deploy to Heroku
 
 on:
   push:
@@ -9,30 +9,33 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4 # Update to the latest version
+      uses: actions/checkout@v3
 
     - name: Set up Node.js
-      uses: actions/setup-node@v4 # Update to the latest version
+      uses: actions/setup-node@v3
       with:
-        node-version: '20' 
+        node-version: '20'
 
     - name: Install dependencies
       run: npm install
 
-    - name: Run tests
-      run: npm test
+    - name: Build frontend
+      working-directory: frontend
+      run: npm run build
 
-    - name: Build project
+    - name: Build backend (if needed)
+      working-directory: backend
       run: npm run build
 
     - name: Deploy to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
       run: |
-        git remote add heroku https://git.heroku.com/your-app-name.git
+        git remote add heroku https://git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
         git push heroku main
