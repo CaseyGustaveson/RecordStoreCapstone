@@ -22,3 +22,4 @@ export const searchProductsByCategory = async (query, categoryId) => {
         return null;
     }
 }
+
