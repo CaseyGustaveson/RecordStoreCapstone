@@ -28,15 +28,16 @@ jobs:
       run: npm test
       continue-on-error: true
 
-    # Conditionally run build step if a build script is defined
     - name: Build project
       run: npm run build
-      continue-on-error: true 
-      if: ${{ (needs.build.outputs.build-script-defined == 'true') }}
+      continue-on-error: true
+
+    - name: Heroku CLI Setup
+      uses: akshatmittal/heroku-cli-action@v1.0
+      with:
+        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
 
     - name: Deploy to Heroku
       run: |
         git remote add heroku https://git.heroku.com/record-store-capstone.git
         git push heroku main
-      env:
-        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
