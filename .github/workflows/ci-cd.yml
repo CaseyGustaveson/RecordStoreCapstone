@@ -26,7 +26,7 @@ jobs:
 
     - name: Deploy
       run: |
-        git remote add heroku https://git.heroku.com/<record-store-capstone.git
+        git remote add heroku https://git.heroku.com/record-store-capstone.git
         git push heroku main
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
