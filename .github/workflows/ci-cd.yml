@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,20 +21,10 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Install dependencies (Frontend)
-      working-directory: frontend
+    - name: Install dependencies
       run: npm install
 
-    - name: Build frontend
-      working-directory: frontend
-      run: npm run build
-
-    - name: Install dependencies (Backend)
-      working-directory: backend
-      run: npm install
-
-    - name: Build backend (if needed)
-      working-directory: backend
+    - name: Build project
       run: npm run build
 
     - name: Deploy to Heroku
