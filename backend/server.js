@@ -2,8 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 import cors from 'cors';
-import isAdmin from './src/middleware/isAdmin.js';
-
+import {isAdmin } from './src/middleware/isAdmin.js';
 
 
 const app = express();
@@ -48,6 +47,7 @@ app.get('/admin', isAdmin, (req, res) => {
 });
 
 
+// Example API routes for categories
 app.get('/api/category', (req, res) => {
   res.json({ message: 'Get all categories' });
 });
@@ -202,10 +202,10 @@ app.delete('/api/cart/:id', (req, res) => {
 })
 
 
-app.get('/api/auth/login', (req, res) => {
+app.get('/auth/login', (req, res) => {
   res.json({ message: 'Login' });
 });
-app.get('/api/auth/register', (req, res) => {
+app.get('/auth/register', (req, res) => {
   res.json({ message: 'Register' });
 });
 
