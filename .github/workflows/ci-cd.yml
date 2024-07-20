@@ -33,9 +33,9 @@ jobs:
       continue-on-error: true
 
     - name: Heroku CLI Setup
-      uses: akshatmittal/heroku-cli-action@v1.0
+      uses: heroku/actions@v2
       with:
-        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+        api_key: ${{ secrets.HEROKU_API_KEY }}
 
     - name: Deploy to Heroku
       run: |
