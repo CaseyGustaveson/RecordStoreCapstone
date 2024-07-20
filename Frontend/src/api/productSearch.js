@@ -64,12 +64,7 @@ export const getProductsByCategory = async (categoryId) => {
   }
 };
 
-export const getProductsBySearch = async (search) => {
-  try {
-    const response = await axios.get(`${API_URL}/search?query=${search}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching products by search:', error);
-    return null;
-  }
+export const getProductsBySearch = async (searchTerm) => {
+  const response = await axios.get(`http://localhost:3001/api/products/search?query=${encodeURIComponent(searchTerm)}`);
+  return response.data;
 };

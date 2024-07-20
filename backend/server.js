@@ -22,7 +22,7 @@ import orderRoutes from './src/routes/orderRoutes.js';
 import productRoutes from './src/routes/productRoutes.js';
 import profileRoutes from './src/routes/profileRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
-import reviewRoute from './src/routes/reviewRoute.js';
+
 
 
 // Route middleware
@@ -33,7 +33,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/review', reviewRoute);
+
 
 
 // Default route
@@ -151,30 +151,56 @@ app.delete('/api/users/:id', (req, res) => {
   res.json({ message: `Delete user with id ${id}` });
 })
 
-app.get('/api/reviews', (req, res) => {
-  res.json({ message: 'Get all reviews' });
+app.get('/api/profiles', (req, res) => {
+  res.json({ message: 'Get all profiles' });
 })
 
-app.get('/api/reviews/:id', (req, res) => {
+app.get('/api/profiles/:id', (req, res) => {
   const { id } = req.params;
-  res.json({ message: `Get review with id ${id}` });
+  res.json({ message: `Get profile with id ${id}` });
 })
 
-app.post('/api/reviews', (req, res) => {
-  const review = req.body;
-  res.json({ message: 'Create new review', review });
+app.post('/api/profiles', (req, res) => {
+  const profile = req.body;
+  res.json({ message: 'Create new profile', profile });
 })
 
-app.put('/api/reviews/:id', (req, res) => {
+app.put('/api/profiles/:id', (req, res) => {
   const { id } = req.params;
-  const review = req.body;
-  res.json({ message: `Update review with id ${id}`, review });
+  const profile = req.body;
+  res.json({ message: `Update profile with id ${id}`, profile });
 })
 
-app.delete('/api/reviews/:id', (req, res) => {
+app.delete('/api/profiles/:id', (req, res) => {
   const { id } = req.params;
-  res.json({ message: `Delete review with id ${id}` });
+  res.json({ message: `Delete profile with id ${id}` });
 })
+
+app.get('/api/cart', (req, res) => {
+  res.json({ message: 'Get all cart items' });
+})
+
+app.get('/api/cart/:id', (req, res) => {
+  const { id } = req.params;
+  res.json({ message: `Get cart item with id ${id}` });
+})
+
+app.post('/api/cart', (req, res) => {
+  const cartItem = req.body;
+  res.json({ message: 'Create new cart item', cartItem });
+})
+
+app.put('/api/cart/:id', (req, res) => {
+  const { id } = req.params;
+  const cartItem = req.body;
+  res.json({ message: `Update cart item with id ${id}`, cartItem });
+})
+
+app.delete('/api/cart/:id', (req, res) => {
+  const { id } = req.params;
+  res.json({ message: `Delete cart item with id ${id}` });
+})
+
 
 app.get('/auth/login', (req, res) => {
   res.json({ message: 'Login' });

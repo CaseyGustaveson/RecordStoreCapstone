@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 export const register = async (req, res) => {
   try {
-    const { username, firstname, lastname, phone, email, password, role } = req.body;
+    const {firstname, lastname, phone, email, password, role } = req.body;
     
     // Default role to 'USER' if not provided
     const userRole = role ? role.toUpperCase() : "USER";
@@ -19,7 +19,6 @@ export const register = async (req, res) => {
     // Create a new user in the database
     const newUser = await prisma.user.create({
       data: {
-        username,
         firstname,
         lastname,
         phone,
@@ -32,7 +31,6 @@ export const register = async (req, res) => {
     // Generate a JWT token
     const payload = {
       id: newUser.id,
-      username: newUser.username,
       email: newUser.email,
       role: newUser.role,
     };
@@ -65,7 +63,6 @@ export const login = async (req, res) => {
       // Generate a JWT token
       const payload = {
         id: user.id,
-        username: user.username,
         email: user.email,
         role: user.role,
       };

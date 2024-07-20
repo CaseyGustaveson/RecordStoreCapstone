@@ -7,25 +7,27 @@ const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
-
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
 
   const handleSearchSubmit = () => {
- navigate(`/search/${searchTerm}`);
+    navigate(`/search?query=${encodeURIComponent(searchTerm)}`);
     console.log('Search term:', searchTerm);
   };
 
   const handleLoginClick = () => {
     navigate('/login');
   }
+  
   const handleRegisterClick = () => {
     navigate('/register');
   }
+  
   const handleHomeClick = () => {
     navigate('/');
   }
+  
   const handleProductClick = () => {
     navigate('/products');
   }
@@ -53,9 +55,9 @@ const Navbar = () => {
           style={{ marginRight: '16px', width: '200px' }}
         />
         <Button color="inherit" onClick={handleSearchSubmit}>Search</Button>
-        <Button color="inherit"onClick={handleHomeClick}>Home</Button>
-        <Button color="inherit"onClick={handleProductClick}>Shop</Button>
-        <Button color="inherit"onClick={handleRegisterClick}>Register</Button>
+        <Button color="inherit" onClick={handleHomeClick}>Home</Button>
+        <Button color="inherit" onClick={handleProductClick}>Shop</Button>
+        <Button color="inherit" onClick={handleRegisterClick}>Register</Button>
         <Button color="inherit" onClick={handleLoginClick}>Login</Button>
         <IconButton color="inherit">
           <ShoppingCartIcon />

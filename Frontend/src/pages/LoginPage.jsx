@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
+import { Alert, Typography, Button, TextField, Snackbar, Stack, Box } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState('success');
+    const [openAlert, setOpenAlert] = useState(false);
+
+    const navigate = useNavigate();
 
     const handleLogin = async () => {
         try {
@@ -11,33 +18,86 @@ const LoginPage = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password }),
+                body: JSON.stringify({ email, password }),
             });
-
             const data = await response.json();
-            console.log(data);
+            
+            if (response.ok) {
+                localStorage.setItem('token', data.accessToken);
+                localStorage.setItem('role', data.user.role); // Store role
+                
+                setAlertMessage('Login successful!');
+                setAlertSeverity('success');
+                setOpenAlert(true);
+                
+                if (data.user.role === 'admin') {
+                    navigate('/admin');
+                } else {
+                    navigate('/');
+                }
+            } else {
+                setAlertMessage(data.error || 'Login failed.');
+                setAlertSeverity('error');
+                setOpenAlert(true);
+            }
         } catch (error) {
-            console.error('Error logging in:', error);
+            console.error(error);
+            setAlertMessage('An unexpected error occurred.');
+            setAlertSeverity('error');
+            setOpenAlert(true);
         }
     };
 
+    const handleCloseAlert = () => {
+        setOpenAlert(false);
+    };
+
     return (
-        <div>
-            <h1>Login Page</h1>
-            <input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-            />
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <button onClick={handleLogin}>Login</button>
-        </div>
+        <Box padding={3}>
+            <Typography variant="h4" align="center" gutterBottom>Login Page</Typography>
+            <Stack spacing={2} width="100%">
+                <TextField
+                    label="Email"
+                    variant="outlined"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    fullWidth
+                    sx={{maxWidth: 400}}
+                />
+                <TextField
+                    label="Password"
+                    type="password"
+                    variant="outlined"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    fullWidth
+                    sx={{maxWidth: 400}}
+                />
+                <Button
+                    onClick={handleLogin}
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    sx={{maxWidth: 400}}
+                >
+                    Login
+                </Button>
+            </Stack>
+            <Snackbar
+                open={openAlert}
+                autoHideDuration={6000}
+                onClose={handleCloseAlert}
+                action={
+                    <Button color="inherit" onClick={handleCloseAlert}>
+                        Close
+                    </Button>
+                }
+            >
+                <Alert onClose={handleCloseAlert} severity={alertSeverity}>
+                    {alertMessage}
+                </Alert>
+            </Snackbar>
+        </Box>
     );
 };
 

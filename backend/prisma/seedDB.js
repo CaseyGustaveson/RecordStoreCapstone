@@ -46,21 +46,19 @@ async function seedDatabase() {
     const seedUsers = async () => {
       const users = [
         {
-          username: 'user1',
+  
           firstname: 'John',
           lastname: 'Doe',
           email: 'john.doe@example.com',
           password: await bcrypt.hash('password123', 10),
         },
         {
-          username: 'user2',
           firstname: 'Jane',
           lastname: 'Smith',
           email: 'jane.smith@example.com',
           password: await bcrypt.hash('securePassword', 10),
         },
         {
-          username: 'admin',
           firstname: 'Admin',
           lastname: 'User',
           email: 'testadmin@test.com',

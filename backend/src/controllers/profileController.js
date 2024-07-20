@@ -31,9 +31,6 @@ const getProfileById = async (req, res) => {
 const createProfile = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
-        
-        // Implement password hashing and validation here if not already done
-        
         const newProfile = await prisma.profile.create({
             data: { name, email, password, role },
         });
@@ -48,9 +45,6 @@ const updateProfile = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, email, password, role } = req.body;
-
-        // Implement password hashing and validation here if not already done
-        
         const updatedProfile = await prisma.profile.update({
             where: { id: parseInt(id) },
             data: { name, email, password, role },
