@@ -56,7 +56,7 @@ const RegisterPage = () => {
             display="flex"
             justifyContent="center"
             alignItems="center"
-            minHeight="100vh"
+            minHeight="80vh"
             padding={2}
         >
             <Box
@@ -77,6 +77,15 @@ const RegisterPage = () => {
                         fullWidth
                         sx={{ maxWidth: 350 }}
                     />
+                       <TextField
+                        label="Password"
+                        type="password"
+                        variant="outlined"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        fullWidth
+                        sx={{ maxWidth: 350 }}
+                    />
                     <TextField
                         label="First Name"
                         variant="outlined"
@@ -93,15 +102,7 @@ const RegisterPage = () => {
                         fullWidth
                         sx={{ maxWidth: 350 }}
                     />
-                    <TextField
-                        label="Phone Number"
-                        variant="outlined"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        fullWidth
-                        sx={{ maxWidth: 350 }}
-                    />
-                    <TextField
+                                 <TextField
                         label="Address"
                         variant="outlined"
                         value={address}
@@ -109,12 +110,12 @@ const RegisterPage = () => {
                         fullWidth
                         sx={{ maxWidth: 350 }}
                     />
+
                     <TextField
-                        label="Password"
-                        type="password"
+                        label="Phone Number"
                         variant="outlined"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
                         fullWidth
                         sx={{ maxWidth: 350 }}
                     />

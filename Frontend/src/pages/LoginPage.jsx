@@ -53,9 +53,15 @@ const LoginPage = () => {
     };
 
     return (
-        <Box padding={3}>
+        <Box
+            display="flex"
+            flexDirection='column'
+            alignItems='center'
+            justifyContent='center'
+            minHeight='70vh'
+        padding={3}>
             <Typography variant="h4" align="center" gutterBottom>Login Page</Typography>
-            <Stack spacing={2} width="100%">
+            <Stack spacing={2} width="100%" maxWidth={400} align='center'>
                 <TextField
                     label="Email"
                     variant="outlined"

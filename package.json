@@ -1,0 +1,19 @@
+{
+  "name": "record_store_capstone_project",
+  "version": "1.0.0",
+  "description": "NewRecordCapstone",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CaseyGustaveson/RecordStoreCapstone.git"
+  },
+  "author": "Casey Gustaveson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CaseyGustaveson/RecordStoreCapstone/issues"
+  },
+  "homepage": "https://github.com/CaseyGustaveson/RecordStoreCapstone#readme"
+}
