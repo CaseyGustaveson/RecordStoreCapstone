@@ -33,11 +33,11 @@ jobs:
       continue-on-error: true
 
     - name: Heroku CLI Setup
-      uses: heroku/actions@v2
+      uses: akshatmittal/heroku-cli-action@v1.0
       with:
-        api_key: ${{ secrets.HEROKU_API_KEY }}
+        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
 
     - name: Deploy to Heroku
       run: |
-        git remote add heroku https://git.heroku.com/record-store-capstone.git
+        heroku git:remote -a record-store-capstone
         git push heroku main
