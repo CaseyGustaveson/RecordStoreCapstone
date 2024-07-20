@@ -28,9 +28,11 @@ jobs:
       run: npm test
       continue-on-error: true # Optional: Continue even if tests fail
 
+    # Conditionally run build step if a build script is defined
     - name: Build project
       run: npm run build
       continue-on-error: true # Optional: Continue even if build fails
+      if: ${{ (needs.build.outputs.build-script-defined == 'true') }}
 
     - name: Deploy to Heroku
       run: |
