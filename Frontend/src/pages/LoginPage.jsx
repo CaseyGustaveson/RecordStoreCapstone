@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Alert, Typography, Button, TextField, Snackbar, Stack, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -12,9 +11,10 @@ const LoginPage = () => {
 
     const navigate = useNavigate();
 
+    
     const handleLogin = async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -24,6 +24,10 @@ const LoginPage = () => {
     
             const data = await response.json();
     
+            console.log('Response Data:', data);
+            console.log('User Role:', data.user.role);
+            console.log('Redirecting to:', data.user.role === 'ADMIN' ? '/admin' : '/');
+    
             if (response.ok) {
                 localStorage.setItem('token', data.accessToken);
                 localStorage.setItem('role', data.user.role);
@@ -32,7 +36,8 @@ const LoginPage = () => {
                 setAlertSeverity('success');
                 setOpenAlert(true);
     
-                if (data.user.role === 'admin') {
+                // Ensure navigation happens immediately after state updates
+                if (data.user.role === 'ADMIN') {
                     navigate('/admin');
                 } else {
                     navigate('/');
@@ -50,6 +55,7 @@ const LoginPage = () => {
         }
     };
     
+    
 
     const handleCloseAlert = () => {
         setOpenAlert(false);
@@ -65,14 +71,13 @@ const LoginPage = () => {
             padding={3}
         >
             <Typography variant="h4" align="center" gutterBottom>Login Page</Typography>
-            <Stack spacing={2} width="100%" maxWidth={400} align='center'>
+            <Stack spacing={2} width="100%" maxWidth={400}>
                 <TextField
                     label="Email"
                     variant="outlined"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     fullWidth
-                    sx={{ maxWidth: 400 }}
                 />
                 <TextField
                     label="Password"
@@ -81,14 +86,12 @@ const LoginPage = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     fullWidth
-                    sx={{ maxWidth: 400 }}
                 />
                 <Button
                     onClick={handleLogin}
                     variant="contained"
                     color="primary"
                     fullWidth
-                    sx={{ maxWidth: 400 }}
                 >
                     Login
                 </Button>

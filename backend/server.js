@@ -6,6 +6,7 @@ import isAdmin from './src/middleware/isAdmin.js';
 
 
 
+
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(cors({
   origin: 'http://localhost:5173',
 }));
+
 
 // Routes
 import authRoutes from './src/routes/authRoutes.js';
