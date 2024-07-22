@@ -1,5 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+<<<<<<< HEAD
 const prisma = new PrismaClient();
+=======
+
+>>>>>>> b74b19b (do-over)
 
 
 

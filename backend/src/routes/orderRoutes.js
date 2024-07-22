@@ -1,6 +1,10 @@
 import express from 'express';
 const router = express.Router();
+<<<<<<< HEAD
 import orderController from '../controllers/orderController.js'; // Include .js extension
+=======
+import * as orderController from '../controllers/orderController.js';
+>>>>>>> b74b19b (do-over)
 import { isAdmin } from '../middleware/authMiddleware.js';
 
 // Middleware to parse JSON bodies

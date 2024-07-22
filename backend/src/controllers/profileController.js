@@ -1,6 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> b74b19b (do-over)
 const getProfiles = async (req, res) => {
     try {
         const profiles = await prisma.profile.findMany();

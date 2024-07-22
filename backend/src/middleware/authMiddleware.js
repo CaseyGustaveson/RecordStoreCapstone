@@ -1,10 +1,20 @@
+<<<<<<< HEAD
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+=======
+
+import { PrismaClient } from '@prisma/client';
+
+import jwt from 'jsonwebtoken';
+>>>>>>> b74b19b (do-over)
 import dotenv from 'dotenv';
 
 dotenv.config();
 
+<<<<<<< HEAD
 const prisma = new PrismaClient();
+=======
+>>>>>>> b74b19b (do-over)
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 
 const authenticateToken = async (req, res, next) => {
