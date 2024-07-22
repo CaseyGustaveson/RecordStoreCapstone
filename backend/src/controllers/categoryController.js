@@ -1,67 +1,73 @@
+// backend/src/controllers/categoryController.js
+
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Fetch all categories
-export const getCategories = async () => {
+export const getCategories = async (req, res) => {
     try {
         const categories = await prisma.category.findMany();
-        return categories;
+        res.json(categories);
     } catch (error) {
         console.error('Error fetching categories:', error);
-        return null;
+        res.status(500).send('Internal Server Error');
     }
 };
 
-// Fetch a single category by ID
-export const getCategory = async (categoryId) => {
+export const getCategoryById = async (req, res) => {
+    const { id } = req.params;
     try {
         const category = await prisma.category.findUnique({
-            where: { id: Number(categoryId) }
+            where: { id: Number(id) }
         });
-        return category;
+        if (category) {
+            res.json(category);
+        } else {
+            res.status(404).send('Category not found');
+        }
     } catch (error) {
         console.error('Error fetching category:', error);
-        return null;
+        res.status(500).send('Internal Server Error');
     }
 };
 
-// Create a new category
-export const createCategory = async (category) => {
+export const createCategory = async (req, res) => {
+    const { name } = req.body;
     try {
         const newCategory = await prisma.category.create({
-            data: category
+            data: { name }
         });
-        return newCategory;
+        res.status(201).json(newCategory);
     } catch (error) {
         console.error('Error creating category:', error);
-        return null;
+        res.status(500).send('Internal Server Error');
     }
 };
 
-// Update an existing category
-export const updateCategory = async (categoryId, category) => {
+export const updateCategory = async (req, res) => {
+    const { id } = req.params;
+    const { name } = req.body;
     try {
         const updatedCategory = await prisma.category.update({
-            where: { id: Number(categoryId) },
-            data: category
+            where: { id: Number(id) },
+            data: { name }
         });
-        return updatedCategory;
+        res.json(updatedCategory);
     } catch (error) {
         console.error('Error updating category:', error);
-        return null;
+        res.status(500).send('Internal Server Error');
     }
 };
 
-// Delete a category
-export const deleteCategory = async (categoryId) => {
+export const deleteCategory = async (req, res) => {
+    const { id } = req.params;
     try {
         await prisma.category.delete({
-            where: { id: Number(categoryId) }
+            where: { id: Number(id) }
         });
-        return { message: 'Category deleted successfully' };
+        res.status(204).send();
     } catch (error) {
         console.error('Error deleting category:', error);
-        return null;
+        res.status(500).send('Internal Server Error');
     }
 };
