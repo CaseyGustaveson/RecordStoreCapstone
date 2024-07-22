@@ -2,7 +2,6 @@ import React from 'react';
 import { Container, Typography, Button, Grid } from '@mui/material';
 
 const HomePage = () => {
-  // Inline styles for the component
   const styles = {
     backgroundContainer: {
       background: 'url(/path/to/your/background.jpg) no-repeat center center fixed',
@@ -15,7 +14,7 @@ const HomePage = () => {
     },
     contentContainer: {
       textAlign: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
       padding: '20px',
       borderRadius: '10px',
     },

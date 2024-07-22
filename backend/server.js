@@ -1,33 +1,21 @@
-// server.js
 import express from 'express';
 import dotenv from 'dotenv';
-import { authRouter } from './src/api/auth.js'; // Import the authRouter from auth.js
+import cors from 'cors';
+import authRoutes from './src/api/auth.js'; // Adjust path as needed
+import userRoutes from './src/api/user.js'; // Adjust path as needed
 
-// Initialize environment variables
 dotenv.config();
 
-// Create Express app
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware to parse JSON bodies
 app.use(express.json());
+app.use(cors());
 
-// Use the authRouter for authentication-related routes
-app.use('/api/auth', authRouter);
+// Use routes
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 
-// Default route
-app.get('/', (req, res) => {
-    res.send('Hello friend!');
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error('Unhandled error:', err.stack);
-    res.status(500).send('Something broke!');
-});
-
-// Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
