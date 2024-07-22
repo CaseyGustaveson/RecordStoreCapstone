@@ -1,13 +1,14 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import axios from 'axios';
+import { PrismaClient } from '@prisma/client';
 
+const prisma = new PrismaClient();
 const router = express.Router();
 
 // Middleware to parse JSON request body
 router.use(express.json());
 
-// Middleware functions
+// Authentication Middleware
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -28,78 +29,46 @@ const isAdmin = (req, res, next) => {
     }
 };
 
-// API URL
-const API_URL = '/api/order';
-
-// API functions
+// API Functions for Orders
 const getOrders = async () => {
-    try {
-        const response = await axios.get(API_URL);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching orders:', error);
-        return null;
-    }
+    return await prisma.order.findMany();
 };
 
 const getOrder = async (orderId) => {
-    try {
-        const response = await axios.get(`${API_URL}/${orderId}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching order:', error);
-        return null;
-    }
+    return await prisma.order.findUnique({
+        where: { id: Number(orderId) }
+    });
 };
 
 const createOrder = async (order) => {
-    try {
-        const response = await axios.post(API_URL, order);
-        return response.data;
-    } catch (error) {
-        console.error('Error creating order:', error);
-        return null;
-    }
+    return await prisma.order.create({ data: order });
 };
 
 const updateOrder = async (orderId, order) => {
-    try {
-        const response = await axios.put(`${API_URL}/${orderId}`, order);
-        return response.data;
-    } catch (error) {
-        console.error('Error updating order:', error);
-        return null;
-    }
+    return await prisma.order.update({
+        where: { id: Number(orderId) },
+        data: order
+    });
 };
 
 const deleteOrder = async (orderId) => {
-    try {
-        const response = await axios.delete(`${API_URL}/${orderId}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error deleting order:', error);
-        return null;
-    }
+    return await prisma.order.delete({
+        where: { id: Number(orderId) }
+    });
 };
 
 const completeOrder = async (orderId) => {
-    try {
-        const response = await axios.post(`${API_URL}/${orderId}/complete`);
-        return response.data;
-    } catch (error) {
-        console.error('Error completing order:', error);
-        return null;
-    }
+    return await prisma.order.update({
+        where: { id: Number(orderId) },
+        data: { status: 'completed' }
+    });
 };
 
 const cancelOrder = async (orderId) => {
-    try {
-        const response = await axios.post(`${API_URL}/${orderId}/cancel`);
-        return response.data;
-    } catch (error) {
-        console.error('Error canceling order:', error);
-        return null;
-    }
+    return await prisma.order.update({
+        where: { id: Number(orderId) },
+        data: { status: 'canceled' }
+    });
 };
 
 // Route handlers for orders

@@ -1,5 +1,4 @@
 import express from 'express';
-import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 
@@ -30,103 +29,126 @@ const isAdmin = (req, res, next) => {
     }
 };
 
-// API URL for cart operations
-const API_URL = '/api/cart';
-
-// API Functions
-const getCart = async () => {
-    try {
-        const response = await axios.get(API_URL);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching cart:', error);
-        return null;
-    }
-};
-
-const addToCart = async (productId, quantity) => {
-    try {
-        const response = await axios.post(API_URL, { productId, quantity });
-        return response.data;
-    } catch (error) {
-        console.error('Error adding to cart:', error);
-        return null;
-    }
-};
-
-const updateCartItem = async (itemId, quantity) => {
-    try {
-        const response = await axios.put(`${API_URL}/${itemId}`, { quantity });
-        return response.data;
-    } catch (error) {
-        console.error('Error updating cart item:', error);
-        return null;
-    }
-};
-
-const removeCartItem = async (itemId) => {
-    try {
-        const response = await axios.delete(`${API_URL}/${itemId}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error removing cart item:', error);
-        return null;
-    }
-};
-
-const clearCart = async () => {
-    try {
-        const response = await axios.delete(API_URL);
-        return response.data;
-    } catch (error) {
-        console.error('Error clearing cart:', error);
-        return null;
-    }
-};
-
-const checkoutCart = async () => {
-    try {
-        const response = await axios.post(`${API_URL}/checkout`);
-        return response.data;
-    } catch (error) {
-        console.error('Error checking out cart:', error);
-        return null;
-    }
-};
-
 // Cart Routes
 router.get('/cart', authenticateToken, async (req, res) => {
-    const cart = await getCart();
-    res.json(cart);
+    try {
+        const cartItems = await prisma.cartItem.findMany({
+            where: { userId: req.user.id },
+            include: { product: true }
+        });
+        res.json(cartItems);
+    } catch (error) {
+        console.error('Error fetching cart:', error);
+        res.sendStatus(500);
+    }
 });
 
 router.post('/cart', authenticateToken, async (req, res) => {
     const { productId, quantity } = req.body;
-    const result = await addToCart(productId, quantity);
-    res.json(result);
+
+    try {
+        const existingCartItem = await prisma.cartItem.findFirst({
+            where: { userId: req.user.id, productId: productId }
+        });
+
+        if (existingCartItem) {
+            // Update existing cart item
+            const updatedItem = await prisma.cartItem.update({
+                where: { id: existingCartItem.id },
+                data: { quantity: existingCartItem.quantity + quantity }
+            });
+            res.json(updatedItem);
+        } else {
+            // Add new cart item
+            const newCartItem = await prisma.cartItem.create({
+                data: { userId: req.user.id, productId: productId, quantity: quantity }
+            });
+            res.json(newCartItem);
+        }
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        res.sendStatus(500);
+    }
 });
 
 router.put('/cart/:itemId', authenticateToken, async (req, res) => {
     const { itemId } = req.params;
     const { quantity } = req.body;
-    const result = await updateCartItem(itemId, quantity);
-    res.json(result);
+
+    try {
+        const updatedCartItem = await prisma.cartItem.update({
+            where: { id: itemId },
+            data: { quantity: quantity }
+        });
+        res.json(updatedCartItem);
+    } catch (error) {
+        console.error('Error updating cart item:', error);
+        res.sendStatus(500);
+    }
 });
 
 router.delete('/cart/:itemId', authenticateToken, async (req, res) => {
     const { itemId } = req.params;
-    const result = await removeCartItem(itemId);
-    res.json(result);
+
+    try {
+        await prisma.cartItem.delete({
+            where: { id: itemId }
+        });
+        res.sendStatus(204);
+    } catch (error) {
+        console.error('Error removing cart item:', error);
+        res.sendStatus(500);
+    }
 });
 
 router.delete('/cart', authenticateToken, async (req, res) => {
-    const result = await clearCart();
-    res.json(result);
+    try {
+        await prisma.cartItem.deleteMany({
+            where: { userId: req.user.id }
+        });
+        res.sendStatus(204);
+    } catch (error) {
+        console.error('Error clearing cart:', error);
+        res.sendStatus(500);
+    }
 });
 
 router.post('/cart/checkout', authenticateToken, async (req, res) => {
-    const result = await checkoutCart();
-    res.json(result);
+    const userId = req.user.id;
+
+    try {
+        // Get cart items
+        const cartItems = await prisma.cartItem.findMany({
+            where: { userId: userId }
+        });
+
+        if (cartItems.length === 0) {
+            return res.status(400).json({ message: 'Cart is empty' });
+        }
+
+        // Create order
+        const order = await prisma.order.create({
+            data: {
+                userId: userId,
+                orderItems: {
+                    create: cartItems.map(item => ({
+                        productId: item.productId,
+                        quantity: item.quantity
+                    }))
+                }
+            }
+        });
+
+        // Clear cart
+        await prisma.cartItem.deleteMany({
+            where: { userId: userId }
+        });
+
+        res.json(order);
+    } catch (error) {
+        console.error('Error checking out cart:', error);
+        res.sendStatus(500);
+    }
 });
 
 export default router;

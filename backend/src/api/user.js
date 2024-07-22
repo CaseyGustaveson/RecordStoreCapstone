@@ -1,9 +1,9 @@
 import express from 'express';
-import axios from 'axios';
 import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 
+const prisma = new PrismaClient();
 const router = express.Router();
-const API_URL = '/api/user';
 
 // Middleware to parse JSON bodies
 router.use(express.json());
@@ -32,8 +32,8 @@ const isAdmin = (req, res, next) => {
 // Controller functions
 const getUsers = async (req, res) => {
     try {
-        const response = await axios.get(API_URL);
-        res.json(response.data);
+        const users = await prisma.user.findMany();
+        res.json(users);
     } catch (error) {
         console.error('Error fetching users:', error);
         res.sendStatus(500);
@@ -42,8 +42,11 @@ const getUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
     try {
-        const response = await axios.get(`${API_URL}/${req.params.id}`);
-        res.json(response.data);
+        const user = await prisma.user.findUnique({
+            where: { id: parseInt(req.params.id, 10) }
+        });
+        if (!user) return res.sendStatus(404);
+        res.json(user);
     } catch (error) {
         console.error('Error fetching user:', error);
         res.sendStatus(500);
@@ -52,8 +55,11 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
     try {
-        const response = await axios.post(API_URL, req.body);
-        res.status(201).json(response.data);
+        const { email, password, role } = req.body;
+        const user = await prisma.user.create({
+            data: { email, password, role }
+        });
+        res.status(201).json(user);
     } catch (error) {
         console.error('Error creating user:', error);
         res.sendStatus(500);
@@ -62,8 +68,13 @@ const createUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const response = await axios.put(`${API_URL}/${req.params.id}`, req.body);
-        res.json(response.data);
+        const { id } = req.params;
+        const { email, password, role } = req.body;
+        const user = await prisma.user.update({
+            where: { id: parseInt(id, 10) },
+            data: { email, password, role }
+        });
+        res.json(user);
     } catch (error) {
         console.error('Error updating user:', error);
         res.sendStatus(500);
@@ -72,8 +83,11 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     try {
-        const response = await axios.delete(`${API_URL}/${req.params.id}`);
-        res.json(response.data);
+        const { id } = req.params;
+        await prisma.user.delete({
+            where: { id: parseInt(id, 10) }
+        });
+        res.sendStatus(204);
     } catch (error) {
         console.error('Error deleting user:', error);
         res.sendStatus(500);
@@ -83,7 +97,7 @@ const deleteUser = async (req, res) => {
 // Routes
 router.get('/', authenticateToken, isAdmin, getUsers);
 router.get('/:id', authenticateToken, isAdmin, getUserById);
-router.post('/', createUser);
+router.post('/', authenticateToken, isAdmin, createUser);
 router.put('/:id', authenticateToken, isAdmin, updateUser);
 router.delete('/:id', authenticateToken, isAdmin, deleteUser);
 
