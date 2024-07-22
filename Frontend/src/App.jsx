@@ -7,6 +7,7 @@ import RegisterPage from "./pages/RegisterPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import AdminPage from "./pages/AdminPage";
 
+
 function App() {
   return (
     <Router>

@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
 import bcrypt from "bcrypt";
 
+const prisma = new PrismaClient();
 
 async function resetDatabase() {
   await prisma.$executeRaw`BEGIN`;
@@ -11,13 +11,13 @@ async function resetDatabase() {
   await prisma.$executeRaw`TRUNCATE TABLE "Category" RESTART IDENTITY CASCADE`;
   await prisma.$executeRaw`TRUNCATE TABLE "Order" RESTART IDENTITY CASCADE`;
   await prisma.$executeRaw`TRUNCATE TABLE "OrderItem" RESTART IDENTITY CASCADE`;
-  await prisma.$executeRaw`TRUNCATE TABLE "Rating" RESTART IDENTITY CASCADE`;
   await prisma.$executeRaw`COMMIT`;
 }
 
 async function seedDatabase() {
   try {
     await resetDatabase();
+
     // Create categories
     const categoriesData = Array.from({ length: 3 }, (_, index) => ({
       name: `Category ${index + 1}`,
@@ -46,7 +46,6 @@ async function seedDatabase() {
     const seedUsers = async () => {
       const users = [
         {
-  
           firstname: 'John',
           lastname: 'Doe',
           email: 'john.doe@example.com',
@@ -66,7 +65,7 @@ async function seedDatabase() {
           role: Role.ADMIN,
         }
       ];
-    
+
       const createdUsers = [];
       for (const user of users) {
         const createdUser = await prisma.user.create({
@@ -77,13 +76,13 @@ async function seedDatabase() {
 
       return createdUsers; // Return the created users array
     };
-    
+
     // Wait for seedUsers to complete and get the created users
     const createdUsers = await seedUsers();
     console.log("Users created:", createdUsers);
 
     // Create products
-    const productsData = createdCategories.flatMap((category, index) => ({
+    const productsData = createdCategories.map((category, index) => ({
       name: `Product ${index + 1}`,
       description: `Description of product ${index + 1}`,
       price: (index + 1) * 10 - 0.01,
@@ -172,6 +171,5 @@ async function seedDatabase() {
     console.error("Error seeding database:", error);
   }
 }
-    
 
-seedDatabase()
+seedDatabase();

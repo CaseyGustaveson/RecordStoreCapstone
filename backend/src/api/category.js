@@ -1,7 +1,8 @@
 import express from 'express';
-import axios from 'axios';
 import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 
+const prisma = new PrismaClient();
 const router = express.Router();
 
 // Middleware to parse JSON bodies
@@ -28,58 +29,32 @@ const isAdmin = (req, res, next) => {
     }
 };
 
-// API URL for category operations
-const API_URL = '/api/category';
-
 // API Functions for Category Operations
 const getCategories = async () => {
-    try {
-        const response = await axios.get(API_URL);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching categories:', error);
-        return null;
-    }
+    return await prisma.category.findMany();
 };
 
 const getCategory = async (categoryId) => {
-    try {
-        const response = await axios.get(`${API_URL}/${categoryId}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching category:', error);
-        return null;
-    }
+    return await prisma.category.findUnique({
+        where: { id: Number(categoryId) }
+    });
 };
 
 const createCategory = async (category) => {
-    try {
-        const response = await axios.post(API_URL, category);
-        return response.data;
-    } catch (error) {
-        console.error('Error creating category:', error);
-        return null;
-    }
+    return await prisma.category.create({ data: category });
 };
 
 const updateCategory = async (categoryId, category) => {
-    try {
-        const response = await axios.put(`${API_URL}/${categoryId}`, category);
-        return response.data;
-    } catch (error) {
-        console.error('Error updating category:', error);
-        return null;
-    }
+    return await prisma.category.update({
+        where: { id: Number(categoryId) },
+        data: category
+    });
 };
 
 const deleteCategory = async (categoryId) => {
-    try {
-        const response = await axios.delete(`${API_URL}/${categoryId}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error deleting category:', error);
-        return null;
-    }
+    return await prisma.category.delete({
+        where: { id: Number(categoryId) }
+    });
 };
 
 // Routes for Category Operations
@@ -101,16 +76,4 @@ router.post('/categories', authenticateToken, isAdmin, async (req, res) => {
 });
 
 router.put('/categories/:id', authenticateToken, isAdmin, async (req, res) => {
-    const { id } = req.params;
-    const category = req.body;
-    const result = await updateCategory(id, category);
-    res.json(result);
-});
-
-router.delete('/categories/:id', authenticateToken, isAdmin, async (req, res) => {
-    const { id } = req.params;
-    const result = await deleteCategory(id);
-    res.json(result);
-});
-
-export default router;
+    const { id } =
