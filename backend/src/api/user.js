@@ -1,28 +1,39 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 
+dotenv.config();
 const prisma = new PrismaClient();
 const router = express.Router();
 
-// Middleware to parse JSON bodies
-router.use(express.json());
-
 // Middleware for Authentication
-const authenticateToken = (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    if (token == null) return res.sendStatus(401);
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        const user = await prisma.user.findUnique({
+            where: { id: decoded.userId },
+        });
+
+        if (!user) return res.sendStatus(403);
+
         req.user = user;
         next();
-    });
+    } catch (error) {
+        console.error('Error verifying token:', error);
+        res.sendStatus(403);
+    }
 };
 
+// Middleware to check if user is admin
 const isAdmin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
+    if (req.user && req.user.role === 'ADMIN') {
         next();
     } else {
         res.sendStatus(403);
@@ -30,75 +41,129 @@ const isAdmin = (req, res, next) => {
 };
 
 // Controller functions
+const getProfile = async (req, res) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id }
+        });
+        if (!user) return res.sendStatus(404);
+        res.json(user);
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.sendStatus(500);
+    }
+};
+
+const updateProfile = async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
+        const updatedUser = await prisma.user.update({
+            where: { id: req.user.id },
+            data: {
+                email,
+                ...(hashedPassword && { password: hashedPassword }),
+            },
+        });
+        res.json(updatedUser);
+    } catch (error) {
+        console.error('Error updating user profile:', error);
+        res.sendStatus(500);
+    }
+};
+
 const getUsers = async (req, res) => {
     try {
         const users = await prisma.user.findMany();
         res.json(users);
     } catch (error) {
         console.error('Error fetching users:', error);
-        res.sendStatus(500);
+        res.status(500).json({ error: 'Failed to fetch users' });
     }
 };
 
 const getUserById = async (req, res) => {
     try {
         const user = await prisma.user.findUnique({
-            where: { id: parseInt(req.params.id, 10) }
+            where: { id: Number(req.params.id) },
         });
-        if (!user) return res.sendStatus(404);
-        res.json(user);
+        if (user) {
+            res.json(user);
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
     } catch (error) {
         console.error('Error fetching user:', error);
-        res.sendStatus(500);
+        res.status(500).json({ error: 'Failed to fetch user' });
     }
 };
 
 const createUser = async (req, res) => {
+    const { firstname, lastname, email, phone, password } = req.body;
+
     try {
-        const { email, password, role } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
         const user = await prisma.user.create({
-            data: { email, password, role }
+            data: {
+                firstname,
+                lastname,
+                email,
+                phone,
+                password: hashedPassword,
+            },
         });
         res.status(201).json(user);
     } catch (error) {
         console.error('Error creating user:', error);
-        res.sendStatus(500);
+        res.status(500).json({ error: 'Failed to create user' });
     }
 };
 
 const updateUser = async (req, res) => {
+    const { id } = req.params;
+    const { firstname, lastname, email, phone, password } = req.body;
+
     try {
-        const { id } = req.params;
-        const { email, password, role } = req.body;
-        const user = await prisma.user.update({
-            where: { id: parseInt(id, 10) },
-            data: { email, password, role }
+        const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
+        const updatedUser = await prisma.user.update({
+            where: { id: Number(id) },
+            data: {
+                firstname,
+                lastname,
+                email,
+                phone,
+                ...(hashedPassword && { password: hashedPassword }),
+            },
         });
-        res.json(user);
+        res.json(updatedUser);
     } catch (error) {
         console.error('Error updating user:', error);
-        res.sendStatus(500);
+        res.status(500).json({ error: 'Failed to update user' });
     }
 };
 
 const deleteUser = async (req, res) => {
+    const { id } = req.params;
+
     try {
-        const { id } = req.params;
         await prisma.user.delete({
-            where: { id: parseInt(id, 10) }
+            where: { id: Number(id) },
         });
-        res.sendStatus(204);
+        res.status(204).end();
     } catch (error) {
         console.error('Error deleting user:', error);
-        res.sendStatus(500);
+        res.status(500).json({ error: 'Failed to delete user' });
     }
 };
 
-// Routes
-router.get('/', authenticateToken, isAdmin, getUsers);
-router.get('/:id', authenticateToken, isAdmin, getUserById);
-router.post('/', authenticateToken, isAdmin, createUser);
-router.put('/:id', authenticateToken, isAdmin, updateUser);
-router.delete('/:id', authenticateToken, isAdmin, deleteUser);
+// Define routes directly in the file
+router.get('/profile', authenticateToken, getProfile);
+router.put('/profile', authenticateToken, updateProfile);
+router.get('/user', authenticateToken, isAdmin, getUsers);
+router.get('/user/:id', authenticateToken, isAdmin, getUserById);
+router.post('/user', createUser);
+router.put('/user/:id', authenticateToken, isAdmin, updateUser);
+router.delete('/user/:id', authenticateToken, isAdmin, deleteUser);
 
 export default router;
