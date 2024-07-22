@@ -1,6 +1,10 @@
 import express from 'express';
 const router = express.Router();
+<<<<<<< HEAD
 import searchController from '../controllers/searchController.js';
+=======
+import * as searchController from '../controllers/searchController.js';
+>>>>>>> b74b19b (do-over)
 import { authenticateToken, isAdmin } from '../middleware/authMiddleware.js';
 
 
