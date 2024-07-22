@@ -1,0 +1,33 @@
+{
+  "type": "module",
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",  
+    "dev": "nodemon server.js",
+    "build": "cd ../frontend && npm run build",
+    "postinstall": "cd ../frontend && npm install",
+    "heroku-postbuild": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed": "node prisma/seedDB.js",
+    "clear": "node prisma/clearDB.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@emotion/react": "^11.12.0",
+    "@emotion/styled": "^11.12.0",
+    "@mui/material": "^5.16.4",
+    "@prisma/client": "^5.17.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "faker": "^4.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^5.17.0"
+  }
+}
