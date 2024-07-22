@@ -1,6 +1,10 @@
 import express from 'express';
 const router = express.Router();
+<<<<<<< HEAD
 import productController from '../controllers/productController.js';
+=======
+import * as productController from '../controllers/productController.js';
+>>>>>>> b74b19b (do-over)
 import { authenticateToken, isAdmin } from '../middleware/authMiddleware.js';
 
 // Middleware to parse JSON request body
