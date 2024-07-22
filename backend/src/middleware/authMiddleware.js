@@ -1,43 +1,23 @@
-
-import { PrismaClient } from '@prisma/client';
+// backend/src/middleware/authMiddleware.js
 
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 
-dotenv.config();
+export const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token == null) return res.sendStatus(401);
 
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
 
-const authenticateToken = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized. No token provided.' });
-  }
-
-  try {
-    const decoded = jwt.verify(token, ACCESS_TOKEN_SECRET);
-    const user = await prisma.user.findUnique({ where: { id: decoded.id } });
-
-    if (!user) {
-      return res.status(401).json({ error: 'Unauthorized. User not found.' });
+export const isAdmin = (req, res, next) => {
+    if (req.user && req.user.role === 'admin') {
+        next();
+    } else {
+        res.sendStatus(403);
     }
-
-    req.user = user;
-    next();
-  } catch (error) {
-    console.error('Error authenticating token:', error);
-    return res.status(401).json({ error: 'Unauthorized. Invalid or expired token.' });
-  }
 };
-
-const isAdmin = (req, res, next) => {
-  if (req.user && req.user.role === 'ADMIN') {
-    next();
-  } else {
-    return res.status(403).json({ error: 'Access denied. Not an admin.' });
-  }
-};
-
-export { authenticateToken, isAdmin };

@@ -1,4 +1,7 @@
+// backend/src/controllers/productController.js
+
 import { PrismaClient } from '@prisma/client';
+
 const prisma = new PrismaClient();
 
 export const getProducts = async (req, res) => {
@@ -7,22 +10,24 @@ export const getProducts = async (req, res) => {
         res.json(products);
     } catch (error) {
         console.error('Error fetching products:', error);
-        res.status(500).json({ error: 'An error occurred while fetching products.' });
+        res.status(500).send('Internal Server Error');
     }
 };
 
 export const getProductById = async (req, res) => {
     const { id } = req.params;
     try {
-        const product = await prisma.product.findUnique({ where: { id: Number(id) } });
+        const product = await prisma.product.findUnique({
+            where: { id: Number(id) }
+        });
         if (product) {
             res.json(product);
         } else {
-            res.status(404).json({ error: 'Product not found.' });
+            res.status(404).send('Product not found');
         }
     } catch (error) {
         console.error('Error fetching product:', error);
-        res.status(500).json({ error: 'An error occurred while fetching the product.' });
+        res.status(500).send('Internal Server Error');
     }
 };
 
@@ -35,7 +40,7 @@ export const createProduct = async (req, res) => {
         res.status(201).json(newProduct);
     } catch (error) {
         console.error('Error creating product:', error);
-        res.status(500).json({ error: 'An error occurred while creating the product.' });
+        res.status(500).send('Internal Server Error');
     }
 };
 
@@ -50,46 +55,37 @@ export const updateProduct = async (req, res) => {
         res.json(updatedProduct);
     } catch (error) {
         console.error('Error updating product:', error);
-        res.status(500).json({ error: 'An error occurred while updating the product.' });
+        res.status(500).send('Internal Server Error');
     }
 };
 
 export const deleteProduct = async (req, res) => {
     const { id } = req.params;
     try {
-        await prisma.product.delete({ where: { id: Number(id) } });
-        res.status(204).end();
+        await prisma.product.delete({
+            where: { id: Number(id) }
+        });
+        res.status(204).send();
     } catch (error) {
         console.error('Error deleting product:', error);
-        res.status(500).json({ error: 'An error occurred while deleting the product.' });
-    }
-};
-
-export const getProductsByCategory = async (req, res) => {
-    const { categoryId } = req.params;
-    try {
-        const products = await prisma.product.findMany({ where: { categoryId: Number(categoryId) } });
-        res.json(products);
-    } catch (error) {
-        console.error('Error fetching products by category:', error);
-        res.status(500).json({ error: 'An error occurred while fetching products by category.' });
+        res.status(500).send('Internal Server Error');
     }
 };
 
 export const searchProducts = async (req, res) => {
-    const { search } = req.params;
+    const { search } = req.query;
     try {
         const products = await prisma.product.findMany({
             where: {
-                OR: [
-                    { name: { contains: search, mode: 'insensitive' } },
-                    { description: { contains: search, mode: 'insensitive' } }
-                ]
+                name: {
+                    contains: search,
+                    mode: 'insensitive'
+                }
             }
         });
         res.json(products);
     } catch (error) {
         console.error('Error searching products:', error);
-        res.status(500).json({ error: 'An error occurred while searching for products.' });
+        res.status(500).send('Internal Server Error');
     }
 };

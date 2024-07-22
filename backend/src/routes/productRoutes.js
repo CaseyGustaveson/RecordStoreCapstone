@@ -1,3 +1,5 @@
+// backend/src/routes/productRoutes.js
+
 import express from 'express';
 const router = express.Router();
 import * as productController from '../controllers/productController.js';

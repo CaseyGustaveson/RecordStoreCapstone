@@ -1,71 +1,73 @@
+// backend/src/controllers/userController.js
+
 import { PrismaClient } from '@prisma/client';
+
 const prisma = new PrismaClient();
 
-// Get all users
 export const getUsers = async (req, res) => {
     try {
         const users = await prisma.user.findMany();
         res.json(users);
     } catch (error) {
         console.error('Error fetching users:', error);
-        res.status(500).json({ error: 'An error occurred while fetching users.' });
+        res.status(500).send('Internal Server Error');
     }
 };
 
-// Get user by ID
 export const getUserById = async (req, res) => {
     const { id } = req.params;
     try {
-        const user = await prisma.user.findUnique({ where: { id: Number(id) } });
+        const user = await prisma.user.findUnique({
+            where: { id: Number(id) }
+        });
         if (user) {
             res.json(user);
         } else {
-            res.status(404).json({ error: 'User not found.' });
+            res.status(404).send('User not found');
         }
     } catch (error) {
         console.error('Error fetching user:', error);
-        res.status(500).json({ error: 'An error occurred while fetching the user.' });
+        res.status(500).send('Internal Server Error');
     }
 };
 
-// Create a new user
 export const createUser = async (req, res) => {
-    const { name, email, password } = req.body; // Adjust based on your User model
+    const { name, email, password } = req.body;
     try {
         const newUser = await prisma.user.create({
-            data: { name, email, password } // Adjust based on your User model
+            data: { name, email, password }
         });
         res.status(201).json(newUser);
     } catch (error) {
         console.error('Error creating user:', error);
-        res.status(500).json({ error: 'An error occurred while creating the user.' });
+        res.status(500).send('Internal Server Error');
     }
 };
 
-// Update user by ID
 export const updateUser = async (req, res) => {
     const { id } = req.params;
-    const { name, email, password } = req.body; // Adjust based on your User model
+    const { name, email, password } = req.body;
     try {
         const updatedUser = await prisma.user.update({
             where: { id: Number(id) },
-            data: { name, email, password } // Adjust based on your User model
+            data: { name, email, password }
         });
         res.json(updatedUser);
     } catch (error) {
         console.error('Error updating user:', error);
-        res.status(500).json({ error: 'An error occurred while updating the user.' });
+        res.status(500).send('Internal Server Error');
     }
 };
 
-// Delete user by ID
 export const deleteUser = async (req, res) => {
     const { id } = req.params;
     try {
-        await prisma.user.delete({ where: { id: Number(id) } });
-        res.status(204).end();
+        await prisma.user.delete({
+            where: { id: Number(id) }
+        });
+        res.status(204).send();
     } catch (error) {
         console.error('Error deleting user:', error);
-        res.status(500).json({ error: 'An error occurred while deleting the user.' });
+        res.status(500).send('Internal Server Error');
     }
 };
