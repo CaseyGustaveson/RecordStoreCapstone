@@ -16,13 +16,22 @@ const AdminPage = () => {
 
     const handleNavigation = (path) => {
         navigate(path);
-    }
+    };
+
+    const handleProfileClick = () => {
+        if (userRole === 'ADMIN') {
+            navigate('/admin');
+        } else {
+            navigate('/profile');
+        }
+    };
 
     return (
         <Box padding={3}>
             <Typography variant="h4" align="center" gutterBottom>Admin Dashboard</Typography>
             {userRole === 'ADMIN' && (
                 <Stack direction="row" justifyContent="center" spacing={2} flexWrap="wrap">
+                    {/* Admin-specific buttons */}
                     <Button variant="contained" onClick={() => handleNavigation('/admin/products/add')}>Add Product</Button>
                     <Button variant="contained" onClick={() => handleNavigation('/admin/products/edit')}>Edit Product</Button>
                     <Button variant="contained" onClick={() => handleNavigation('/admin/products/delete')}>Delete Product</Button>
@@ -39,7 +48,7 @@ const AdminPage = () => {
                     <Button variant="contained" onClick={() => handleNavigation('/admin/products')}>View Products</Button>
                     <Button variant="contained" onClick={() => handleNavigation('/admin/users')}>View Users</Button>
                     <Button variant="contained" onClick={() => handleNavigation('/admin/categories')}>View Categories</Button>
-                    <Button variant="contained" onClick={() => handleNavigation('/admin/profile')}>View Profile</Button>
+                    <Button variant="contained" onClick={handleProfileClick}>View Profile</Button>
                     <Button variant="contained" onClick={() => handleNavigation('/login')}>Logout</Button>
                 </Stack>
             )}

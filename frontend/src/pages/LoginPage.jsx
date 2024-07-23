@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, Typography, Button, TextField, Snackbar, Stack, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../api/authApi'; // Import the loginUser function
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -13,37 +14,27 @@ const LoginPage = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
+            console.log('Attempting login with:', { email, password });
 
-            const data = await response.json();
+            const data = await loginUser({ email, password });
+            console.log('Login successful:', data);
 
-            if (response.ok) {
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('role', data.user?.role || 'USER'); // Use optional chaining
+            localStorage.setItem('token', data.token);
+            const role = data.role || 'USER'; 
+            localStorage.setItem('role', role);
 
-                setAlertMessage('Login successful!');
-                setAlertSeverity('success');
-                setOpenAlert(true);
+            setAlertMessage('Login successful!');
+            setAlertSeverity('success');
+            setOpenAlert(true);
 
-                if (data.user?.role === 'ADMIN') {
-                    navigate('/admin');
-                } else {
-                    navigate('/');
-                }
+            if (role === 'ADMIN') {
+                navigate('/admin');
             } else {
-                setAlertMessage(data.error || 'Login failed.');
-                setAlertSeverity('error');
-                setOpenAlert(true);
+                navigate('/');
             }
         } catch (error) {
-            console.error('Login error:', error);
-            setAlertMessage('An unexpected error occurred.');
+            console.error('Login failed:', error);
+            setAlertMessage(error.message || 'Login failed.');
             setAlertSeverity('error');
             setOpenAlert(true);
         }
@@ -56,10 +47,10 @@ const LoginPage = () => {
     return (
         <Box
             display="flex"
-            flexDirection='column'
-            alignItems='center'
-            justifyContent='center'
-            minHeight='70vh'
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            minHeight="70vh"
             padding={3}
         >
             <Typography variant="h4" align="center" gutterBottom>Login Page</Typography>
