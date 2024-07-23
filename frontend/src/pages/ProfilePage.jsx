@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Typography, Button, Grid, CircularProgress } from '@mui/material';
-import axios from 'axios';
+import { getUserProfile } from '../api/userApi'; // Import the getUserProfile function
 
 const ProfilePage = () => {
     const [user, setUser] = useState(null);
@@ -10,13 +10,9 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
-                const token = localStorage.getItem('token'); 
-                const response = await axios.get('http://localhost:3001/api/profile', { // Ensure the endpoint matches the backend route
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                setUser(response.data);
+                const token = localStorage.getItem('token');
+                const data = await getUserProfile(token); // Use the getUserProfile function
+                setUser(data);
                 setLoading(false);
             } catch (err) {
                 setError(err);

@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 const router = express.Router();
 
 // Middleware for Authentication
-const authenticateToken = async (req, res, next) => {
+export const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -27,6 +27,15 @@ const authenticateToken = async (req, res, next) => {
         next();
     } catch (error) {
         console.error('Error verifying token:', error);
+        res.sendStatus(403);
+    }
+};
+
+// Middleware to check if user is admin
+const isAdmin = (req, res, next) => {
+    if (req.user && req.user.role === 'ADMIN') {
+        next();
+    } else {
         res.sendStatus(403);
     }
 };
