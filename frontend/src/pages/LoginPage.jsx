@@ -11,7 +11,6 @@ const LoginPage = () => {
 
     const navigate = useNavigate();
 
-    
     const handleLogin = async () => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
@@ -21,23 +20,18 @@ const LoginPage = () => {
                 },
                 body: JSON.stringify({ email, password }),
             });
-    
+
             const data = await response.json();
-    
-            console.log('Response Data:', data);
-            console.log('User Role:', data.user.role);
-            console.log('Redirecting to:', data.user.role === 'ADMIN' ? '/admin' : '/');
-    
+
             if (response.ok) {
-                localStorage.setItem('token', data.accessToken);
-                localStorage.setItem('role', data.user.role);
-    
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('role', data.user?.role || 'USER'); // Use optional chaining
+
                 setAlertMessage('Login successful!');
                 setAlertSeverity('success');
                 setOpenAlert(true);
-    
-                // Ensure navigation happens immediately after state updates
-                if (data.user.role === 'ADMIN') {
+
+                if (data.user?.role === 'ADMIN') {
                     navigate('/admin');
                 } else {
                     navigate('/');
@@ -54,8 +48,6 @@ const LoginPage = () => {
             setOpenAlert(true);
         }
     };
-    
-    
 
     const handleCloseAlert = () => {
         setOpenAlert(false);
