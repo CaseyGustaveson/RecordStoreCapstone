@@ -1,33 +1,9 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+import { authenticateToken, isAdmin } from './auth.js'; // Import middleware from the same file or copy it
 
 const prisma = new PrismaClient();
 const router = express.Router();
-
-// Middleware to parse JSON bodies
-router.use(express.json());
-
-// Authentication Middleware
-const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (token == null) return res.sendStatus(401);
-
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
-        next();
-    });
-};
-
-const isAdmin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
-        next();
-    } else {
-        res.sendStatus(403);
-    }
-};
 
 // API Functions for Category Operations
 const getCategories = async () => {
@@ -58,22 +34,58 @@ const deleteCategory = async (categoryId) => {
 };
 
 // Routes for Category Operations
-router.get('/categories', async (req, res) => {
-    const categories = await getCategories();
-    res.json(categories);
+router.get('/', async (req, res) => {
+    try {
+        const categories = await getCategories();
+        res.json(categories);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch categories' });
+    }
 });
 
-router.get('/categories/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
     const { id } = req.params;
-    const category = await getCategory(id);
-    res.json(category);
+    try {
+        const category = await getCategory(id);
+        if (category) {
+            res.json(category);
+        } else {
+            res.status(404).json({ error: 'Category not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch category' });
+    }
 });
 
-router.post('/categories', authenticateToken, isAdmin, async (req, res) => {
+router.post('/', authenticateToken, isAdmin, async (req, res) => {
     const category = req.body;
-    const result = await createCategory(category);
-    res.json(result);
+    try {
+        const result = await createCategory(category);
+        res.status(201).json(result);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to create category' });
+    }
 });
 
-router.put('/categories/:id', authenticateToken, isAdmin, async (req, res) => {
-    const { id } =
+router.put('/:id', authenticateToken, isAdmin, async (req, res) => {
+    const { id } = req.params;
+    const category = req.body;
+    try {
+        const result = await updateCategory(id, category);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update category' });
+    }
+});
+
+router.delete('/:id', authenticateToken, isAdmin, async (req, res) => {
+    const { id } = req.params;
+    try {
+        await deleteCategory(id);
+        res.status(204).end();
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete category' });
+    }
+});
+
+export default router;
