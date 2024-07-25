@@ -8,6 +8,15 @@ dotenv.config();
 const prisma = new PrismaClient();
 const router = express.Router();
 
+const decodeToken = (token) => {
+    try {
+        return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+};
+
 // Middleware for Authentication
 export const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];

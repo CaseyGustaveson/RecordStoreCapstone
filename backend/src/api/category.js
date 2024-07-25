@@ -6,7 +6,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 const prisma = new PrismaClient();
-const router = express.Router();
+const app = express();
+
+app.use(cors());
+app.use(express.json());
 
 // Middleware for Authentication
 const authenticateToken = async (req, res, next) => {
@@ -69,7 +72,7 @@ const deleteCategory = async (categoryId) => {
 };
 
 // Routes for Category Operations
-router.get('/', async (req, res) => {
+app.get('/categories', async (req, res) => {
     try {
         const categories = await getCategories();
         res.json(categories);
@@ -79,7 +82,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+app.get('/categories/:id', async (req, res) => {
     const { id } = req.params;
     try {
         const category = await getCategory(id);
@@ -94,7 +97,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', authenticateToken, isAdmin, async (req, res) => {
+app.post('/categories', authenticateToken, isAdmin, async (req, res) => {
     const category = req.body;
 
     try {
@@ -106,7 +109,7 @@ router.post('/', authenticateToken, isAdmin, async (req, res) => {
     }
 });
 
-router.put('/:id', authenticateToken, isAdmin, async (req, res) => {
+app.put('/categories/:id', authenticateToken, isAdmin, async (req, res) => {
     const { id } = req.params;
     const category = req.body;
     
@@ -119,7 +122,7 @@ router.put('/:id', authenticateToken, isAdmin, async (req, res) => {
     }
 });
 
-router.delete('/:id', authenticateToken, isAdmin, async (req, res) => {
+app.delete('/categories/:id', authenticateToken, isAdmin, async (req, res) => {
     const { id } = req.params;
     
     try {
@@ -131,5 +134,6 @@ router.delete('/:id', authenticateToken, isAdmin, async (req, res) => {
     }
 });
 
-// Export the router
-export default router;
+
+
+export default app;

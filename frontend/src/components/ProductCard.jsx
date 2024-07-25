@@ -3,7 +3,7 @@ import { Card, CardContent, Typography, CardMedia } from '@mui/material';
 
 const ProductCard = ({ product }) => {
   return (
-    <Card>
+    <Card sx={{width:200}}>
       <CardMedia
         component="img"
         alt={product.name}

@@ -7,6 +7,7 @@ import RegisterPage from "./pages/RegisterPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import AdminPage from "./pages/AdminPage";
 import ProfilePage from "./pages/ProfilePage";
+import ProductsPage from "./pages/ProductPage";
 
 
 
@@ -17,6 +18,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/products" element={<ProductsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/register" element={<RegisterPage />} />

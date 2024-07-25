@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import { Alert, Typography, Button, TextField, Snackbar, Stack, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../api/authApi'; // Import the loginUser function
+import { loginUser } from '../api/authApi';
 
-const LoginPage = () => {
+const AuthLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('success');
     const [openAlert, setOpenAlert] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
-    const handleLogin = async () => {
+    const handleLogin = async (event) => {
+        event.preventDefault();
+        setLoading(true);
         try {
             console.log('Attempting login with:', { email, password });
 
@@ -20,13 +23,14 @@ const LoginPage = () => {
             console.log('Login successful:', data);
 
             localStorage.setItem('token', data.token);
-            const role = data.role || 'USER'; 
+            const role = data.role || 'USER';
             localStorage.setItem('role', role);
 
             setAlertMessage('Login successful!');
             setAlertSeverity('success');
             setOpenAlert(true);
 
+            // Redirect based on user role
             if (role === 'ADMIN') {
                 navigate('/admin');
             } else {
@@ -37,6 +41,8 @@ const LoginPage = () => {
             setAlertMessage(error.message || 'Login failed.');
             setAlertSeverity('error');
             setOpenAlert(true);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -61,6 +67,7 @@ const LoginPage = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     fullWidth
+                    disabled={loading}
                 />
                 <TextField
                     label="Password"
@@ -69,14 +76,16 @@ const LoginPage = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     fullWidth
+                    disabled={loading}
                 />
                 <Button
                     onClick={handleLogin}
                     variant="contained"
                     color="primary"
                     fullWidth
+                    disabled={loading}
                 >
-                    Login
+                    {loading ? 'Logging in...' : 'Login'}
                 </Button>
             </Stack>
             <Snackbar
@@ -97,4 +106,4 @@ const LoginPage = () => {
     );
 };
 
-export default LoginPage;
+export default AuthLogin;
