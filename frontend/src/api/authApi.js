@@ -1,25 +1,33 @@
-// src/api/authApi.js
-const API_URL = import.meta.env.VITE_API_URL;
+import { useNavigate } from 'react-router-dom';
 
 export const loginUser = async ({ email, password }) => {
+    const navigate = useNavigate();
+
     try {
-        const response = await fetch(`${API_URL}/api/auth/login`, {
+        const response = await fetch('/api/auth/login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Error response:', errorData);
-            throw new Error(errorData.error || 'Login failed.');
+            const error = await response.json();
+            throw new Error(error.error);
         }
 
-        return await response.json();
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', data.role);
+
+        if (data.role === 'ADMIN') {
+            navigate('/admin');
+        } else {
+            navigate('/');
+        }
+
+        return data;
     } catch (error) {
-        console.error('Error during login:', error);
-        throw new Error(error.message || 'An unexpected error occurred.');
+        console.error('Login failed:', error);
+        throw new Error(error.message || 'Login failed.');
     }
 };

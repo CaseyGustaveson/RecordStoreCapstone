@@ -1,36 +1,37 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const prisma = new PrismaClient();
 const router = express.Router();
 
-// Middleware to parse JSON bodies
-router.use(express.json());
-
-// Authentication Middleware
-const authenticateToken = (req, res, next) => {
+// Middleware for Authentication
+const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    if (token == null) return res.sendStatus(401);
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        const user = await prisma.user.findUnique({
+            where: { id: decoded.userId },
+        });
+
+        if (!user) return res.sendStatus(403);
+
         req.user = user;
         next();
-    });
-};
-
-const isAdmin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
-        next();
-    } else {
+    } catch (error) {
+        console.error('Error verifying token:', error);
         res.sendStatus(403);
     }
 };
 
-// Cart Routes
-router.get('/cart', authenticateToken, async (req, res) => {
+// Controller functions
+const getCartItems = async (req, res) => {
     try {
         const cartItems = await prisma.cartItem.findMany({
             where: { userId: req.user.id },
@@ -41,9 +42,9 @@ router.get('/cart', authenticateToken, async (req, res) => {
         console.error('Error fetching cart:', error);
         res.sendStatus(500);
     }
-});
+};
 
-router.post('/cart', authenticateToken, async (req, res) => {
+const addToCart = async (req, res) => {
     const { productId, quantity } = req.body;
 
     try {
@@ -69,9 +70,9 @@ router.post('/cart', authenticateToken, async (req, res) => {
         console.error('Error adding to cart:', error);
         res.sendStatus(500);
     }
-});
+};
 
-router.put('/cart/:itemId', authenticateToken, async (req, res) => {
+const updateCartItem = async (req, res) => {
     const { itemId } = req.params;
     const { quantity } = req.body;
 
@@ -85,9 +86,9 @@ router.put('/cart/:itemId', authenticateToken, async (req, res) => {
         console.error('Error updating cart item:', error);
         res.sendStatus(500);
     }
-});
+};
 
-router.delete('/cart/:itemId', authenticateToken, async (req, res) => {
+const removeCartItem = async (req, res) => {
     const { itemId } = req.params;
 
     try {
@@ -99,9 +100,9 @@ router.delete('/cart/:itemId', authenticateToken, async (req, res) => {
         console.error('Error removing cart item:', error);
         res.sendStatus(500);
     }
-});
+};
 
-router.delete('/cart', authenticateToken, async (req, res) => {
+const clearCart = async (req, res) => {
     try {
         await prisma.cartItem.deleteMany({
             where: { userId: req.user.id }
@@ -111,13 +112,12 @@ router.delete('/cart', authenticateToken, async (req, res) => {
         console.error('Error clearing cart:', error);
         res.sendStatus(500);
     }
-});
+};
 
-router.post('/cart/checkout', authenticateToken, async (req, res) => {
+const checkoutCart = async (req, res) => {
     const userId = req.user.id;
 
     try {
-        // Get cart items
         const cartItems = await prisma.cartItem.findMany({
             where: { userId: userId }
         });
@@ -126,7 +126,6 @@ router.post('/cart/checkout', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Cart is empty' });
         }
 
-        // Create order
         const order = await prisma.order.create({
             data: {
                 userId: userId,
@@ -139,7 +138,6 @@ router.post('/cart/checkout', authenticateToken, async (req, res) => {
             }
         });
 
-        // Clear cart
         await prisma.cartItem.deleteMany({
             where: { userId: userId }
         });
@@ -149,6 +147,14 @@ router.post('/cart/checkout', authenticateToken, async (req, res) => {
         console.error('Error checking out cart:', error);
         res.sendStatus(500);
     }
-});
+};
+
+// Define routes directly in the file
+router.get('/cart', authenticateToken, getCartItems);
+router.post('/cart', authenticateToken, addToCart);
+router.put('/cart/:itemId', authenticateToken, updateCartItem);
+router.delete('/cart/:itemId', authenticateToken, removeCartItem);
+router.delete('/cart', authenticateToken, clearCart);
+router.post('/cart/checkout', authenticateToken, checkoutCart);
 
 export default router;
