@@ -43,8 +43,7 @@ const AdminPage = () => {
             <Stack direction="row" justifyContent="center" spacing={2} flexWrap="wrap">
                 {/* Admin-specific buttons */}
                 <Button variant="contained" onClick={() => handleNavigation('/admin/products')}>Products</Button>
-                <Button variant="contained" onClick={() => handleNavigation('/admin/users/edit')}>Edit User</Button>
-                <Button variant="contained" onClick={() => handleNavigation('/admin/users/delete')}>Delete User</Button>
+                <Button variant="contained" onClick={() => handleNavigation('/admin/users/')}>Users</Button>
                 <Button variant="contained" onClick={() => handleNavigation('/admin/categories/add')}>Add Category</Button>
                 <Button variant="contained" onClick={() => handleNavigation('/admin/categories/edit')}>Edit Category</Button>
                 <Button variant="contained" onClick={() => handleNavigation('/admin/categories/delete')}>Delete Category</Button>

@@ -9,6 +9,7 @@ import AdminPage from "./pages/AdminPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProductsPage from "./pages/ProductPage";
 import AdminProducts from "./pages/Admin/AdminProducts";
+import AdminUsers from "./pages/Admin/AdminUsers";
 
 
 
@@ -26,6 +27,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/search" element={<SearchResultsPage />} />
           <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
         </Routes>
       </div>
     </Router>
