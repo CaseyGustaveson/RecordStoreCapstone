@@ -13,8 +13,6 @@ const Navbar = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
-  
-  
     console.log('Token from localStorage:', token);
     console.log('Role from localStorage:', role);
     setIsLoggedIn(!!token);
@@ -27,7 +25,7 @@ const Navbar = () => {
 
   const handleSearchSubmit = () => {
     const searchUrl = `/search?query=${encodeURIComponent(searchTerm)}`;
-    console.log('Navigating to:', searchUrl); // Log the URL
+    console.log('Navigating to:', searchUrl);
     navigate(searchUrl);
   };
 
@@ -56,12 +54,12 @@ const Navbar = () => {
   };
 
   const handleLogoutClick = () => {
-    console.log('Logging out...'); 
+    console.log('Logging out...');
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     setIsLoggedIn(false);
     setUserRole(null);
-    console.log('Logged out'); // Debugging line
+    console.log('Logged out');
     navigate('/login');
   };
 
@@ -105,8 +103,14 @@ const Navbar = () => {
           <>
             <IconButton color="inherit" onClick={handleProfileClick}>
               <AccountCircleIcon />
+              {/* Debugging text */}
+              <Typography variant="body2" style={{ marginLeft: '8px' }}>Profile</Typography>
             </IconButton>
-            <Button color="inherit" onClick={handleLogoutClick}>Logout</Button>
+            <Button color="inherit" onClick={handleLogoutClick}>
+              Logout
+              {/* Debugging text */}
+              <Typography variant="body2" style={{ marginLeft: '8px' }}>Logout</Typography>
+            </Button>
           </>
         )}
         <IconButton color="inherit">
