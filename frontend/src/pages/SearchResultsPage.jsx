@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Grid, CircularProgress, Alert, Card, CardContent, CardMedia, Button } from '@mui/material';
 import { useLocation } from 'react-router-dom';
-import { getProductsBySearch } from '../api/productSearch';
-
-const useQuery = () => {
-  return new URLSearchParams(useLocation().search);
-};
+import { getProductsBySearch } from '../api/productSearch'; // Ensure this points to the correct API function
 
 const SearchResultsPage = ({ showSearchBar = true }) => {
-  const query = useQuery();
-  const initialSearchTerm = query.get('q') || '';
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const initialSearchTerm = query.get('query') || '';
+
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -29,16 +27,17 @@ const SearchResultsPage = ({ showSearchBar = true }) => {
     setLoading(true);
     setError(null);
     try {
-      console.log('Fetching products with search term:', term); // Log search term
+      console.log('Fetching products with search term:', term);
       const result = await getProductsBySearch(term);
-      console.log('Search results:', result); // Log search results
-      if (result && result.length > 0) {
+      console.log('Search results:', result);
+      if (Array.isArray(result) && result.length > 0) {
         setProducts(result);
       } else {
+        setProducts([]);
         setError('No products found');
       }
     } catch (err) {
-      console.error('Error fetching products:', err); // Log any errors
+      console.error('Error fetching products:', err);
       setError('Error fetching products');
     }
     setLoading(false);

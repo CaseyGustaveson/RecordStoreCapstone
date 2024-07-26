@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Use environment variable or default to localhost
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/products/search';
+const API_URL = 'http://localhost:3001/api/products';
 
 // Fetch all products
 export const getProducts = async () => {
@@ -80,12 +80,12 @@ export const getProductsByCategory = async (categoryId) => {
 // Search products
 export const getProductsBySearch = async (searchTerm) => {
   try {
-    const response = await axios.get(`${API_URL}/products/search`, {
-      params: { q: searchTerm },
+    const response = await axios.get(API_URL, {
+      params: { q: searchTerm }
     });
     return response.data;
   } catch (error) {
-    console.error('Error searching products:', error);
-    throw error;
+    console.error('Error fetching products:', error);
+    throw error; 
   }
 };
