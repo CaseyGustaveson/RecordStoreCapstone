@@ -9,7 +9,7 @@ const useQuery = () => {
 
 const SearchResultsPage = ({ showSearchBar = true }) => {
   const query = useQuery();
-  const initialSearchTerm = query.get('query') || '';
+  const initialSearchTerm = query.get('q') || '';
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -29,13 +29,16 @@ const SearchResultsPage = ({ showSearchBar = true }) => {
     setLoading(true);
     setError(null);
     try {
+      console.log('Fetching products with search term:', term); // Log search term
       const result = await getProductsBySearch(term);
+      console.log('Search results:', result); // Log search results
       if (result && result.length > 0) {
         setProducts(result);
       } else {
         setError('No products found');
       }
     } catch (err) {
+      console.error('Error fetching products:', err); // Log any errors
       setError('Error fetching products');
     }
     setLoading(false);
@@ -67,22 +70,20 @@ const SearchResultsPage = ({ showSearchBar = true }) => {
                     />
                   )}
                   <CardContent>
-                    <Typography variant="h6">{product.name}</Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="h5">{product.name}</Typography>
+                    <Typography variant="body2" color="textSecondary">
                       {product.description}
                     </Typography>
                     <Typography variant="h6">${product.price}</Typography>
-                    <Button variant="contained" color="primary" sx={{ marginTop: 2 }}>
-                      View Details
+                    <Button variant="contained" color="primary" onClick={() => { /* Handle add to cart */ }}>
+                      Add to Cart
                     </Button>
                   </CardContent>
                 </Card>
               </Grid>
             ))
           ) : (
-            <Grid item xs={12} container justifyContent="center" alignItems="center" sx={{ minHeight: '60vh' }}>
-              <Typography variant="body1" align="center">No results found</Typography>
-            </Grid>
+            <Typography>No products available</Typography>
           )}
         </Grid>
       )}

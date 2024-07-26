@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Button, Typography, Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
+
 const AdminPage = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true); // State to handle loading
@@ -41,19 +42,12 @@ const AdminPage = () => {
             <Typography variant="h4" align="center" gutterBottom>Admin Dashboard</Typography>
             <Stack direction="row" justifyContent="center" spacing={2} flexWrap="wrap">
                 {/* Admin-specific buttons */}
-                <Button variant="contained" onClick={() => handleNavigation('/admin/products/add')}>Add Product</Button>
-                <Button variant="contained" onClick={() => handleNavigation('/admin/products/edit')}>Edit Product</Button>
-                <Button variant="contained" onClick={() => handleNavigation('/admin/products/delete')}>Delete Product</Button>
-                <Button variant="contained" onClick={() => handleNavigation('/admin/users/add')}>Add User</Button>
+                <Button variant="contained" onClick={() => handleNavigation('/admin/products')}>Products</Button>
                 <Button variant="contained" onClick={() => handleNavigation('/admin/users/edit')}>Edit User</Button>
                 <Button variant="contained" onClick={() => handleNavigation('/admin/users/delete')}>Delete User</Button>
                 <Button variant="contained" onClick={() => handleNavigation('/admin/categories/add')}>Add Category</Button>
                 <Button variant="contained" onClick={() => handleNavigation('/admin/categories/edit')}>Edit Category</Button>
                 <Button variant="contained" onClick={() => handleNavigation('/admin/categories/delete')}>Delete Category</Button>
-                <Button variant="contained" onClick={() => handleNavigation('/admin/orders/add')}>Add Order</Button>
-                <Button variant="contained" onClick={() => handleNavigation('/admin/orders/edit')}>Edit Order</Button>
-                <Button variant="contained" onClick={() => handleNavigation('/admin/orders/delete')}>Delete Order</Button>
-                <Button variant="contained" onClick={() => handleNavigation('/admin/orders')}>View Orders</Button>
                 <Button variant="contained" onClick={() => handleNavigation('/admin/products')}>View Products</Button>
                 <Button variant="contained" onClick={() => handleNavigation('/admin/users')}>View Users</Button>
                 <Button variant="contained" onClick={() => handleNavigation('/admin/categories')}>View Categories</Button>

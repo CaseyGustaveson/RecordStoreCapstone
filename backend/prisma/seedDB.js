@@ -9,8 +9,6 @@ async function resetDatabase() {
   await prisma.$executeRaw`TRUNCATE TABLE "CartItem" RESTART IDENTITY CASCADE`;
   await prisma.$executeRaw`TRUNCATE TABLE "User" RESTART IDENTITY CASCADE`;
   await prisma.$executeRaw`TRUNCATE TABLE "Category" RESTART IDENTITY CASCADE`;
-  await prisma.$executeRaw`TRUNCATE TABLE "Order" RESTART IDENTITY CASCADE`;
-  await prisma.$executeRaw`TRUNCATE TABLE "OrderItem" RESTART IDENTITY CASCADE`;
   await prisma.$executeRaw`COMMIT`;
 }
 
@@ -116,60 +114,6 @@ async function seedDatabase() {
     });
     console.log("Cart items created:", createdCartItems);
 
-    // Create Orders
-    const ordersData = [
-      {
-        userId: createdUsers[0].id,
-        total: 9.99,
-        status: "PAID",
-      },
-      {
-        userId: createdUsers[1].id,
-        total: 59.97,
-        status: "PAID",
-      },
-      {
-        userId: createdUsers[2].id,
-        total: 29.99,
-        status: "PAID",
-      },
-    ];
-
-    let createdOrders = [];
-    for (const orderData of ordersData) {
-      const order = await prisma.order.create({
-        data: orderData,
-      });
-      createdOrders.push(order);
-    }
-    console.log("Orders created:", createdOrders);
-
-    // Create OrderItems
-    const orderItemsData = [
-      {
-        orderId: createdOrders[0].id,
-        productId: createdProducts[0].id,
-        quantity: 1,
-      },
-      {
-        orderId: createdOrders[1].id,
-        productId: createdProducts[1].id,
-        quantity: 2,
-      },
-      {
-        orderId: createdOrders[2].id,
-        productId: createdProducts[2].id,
-        quantity: 3,
-      },
-    ];
-
-    const createdOrderItems = await prisma.orderItem.createMany({
-      data: orderItemsData,
-    });
-    console.log("OrderItems created:", createdOrderItems);
-  } catch (error) {
-    console.error("Error seeding database:", error);
-  }
-}
+  
 
 seedDatabase();

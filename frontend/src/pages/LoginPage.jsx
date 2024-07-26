@@ -3,7 +3,7 @@ import { Alert, Typography, Button, TextField, Snackbar, Stack, Box } from '@mui
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/authApi';
 
-const AuthLogin = () => {
+const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
@@ -21,17 +21,13 @@ const AuthLogin = () => {
 
             const data = await loginUser({ email, password });
             console.log('Login successful:', data);
-
-            localStorage.setItem('token', data.token);
-            const role = data.role || 'USER';
-            localStorage.setItem('role', role);
+            console.log('User role:', data.role);
 
             setAlertMessage('Login successful!');
             setAlertSeverity('success');
             setOpenAlert(true);
 
-            // Redirect based on user role
-            if (role === 'ADMIN') {
+            if (data.role === 'ADMIN') {
                 navigate('/admin');
             } else {
                 navigate('/');
@@ -67,7 +63,6 @@ const AuthLogin = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     fullWidth
-                    disabled={loading}
                 />
                 <TextField
                     label="Password"
@@ -76,7 +71,6 @@ const AuthLogin = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     fullWidth
-                    disabled={loading}
                 />
                 <Button
                     onClick={handleLogin}
@@ -93,12 +87,12 @@ const AuthLogin = () => {
                 autoHideDuration={6000}
                 onClose={handleCloseAlert}
                 action={
-                    <Button color="inherit" onClick={handleCloseAlert}>
+                    <Button color="inherit" size="small" onClick={handleCloseAlert}>
                         Close
                     </Button>
                 }
             >
-                <Alert onClose={handleCloseAlert} severity={alertSeverity}>
+                <Alert onClose={handleCloseAlert} severity={alertSeverity} sx={{ width: '100%' }}>
                     {alertMessage}
                 </Alert>
             </Snackbar>
@@ -106,4 +100,4 @@ const AuthLogin = () => {
     );
 };
 
-export default AuthLogin;
+export default LoginPage;

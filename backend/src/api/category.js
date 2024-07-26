@@ -134,6 +134,4 @@ app.delete('/categories/:id', authenticateToken, isAdmin, async (req, res) => {
     }
 });
 
-
-
 export default app;

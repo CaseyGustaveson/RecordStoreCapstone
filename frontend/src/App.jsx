@@ -8,6 +8,7 @@ import SearchResultsPage from "./pages/SearchResultsPage";
 import AdminPage from "./pages/AdminPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProductsPage from "./pages/ProductPage";
+import AdminProducts from "./pages/Admin/AdminProducts";
 
 
 
@@ -24,6 +25,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/search" element={<SearchResultsPage />} />
+          <Route path="/admin/products" element={<AdminProducts />} />
         </Routes>
       </div>
     </Router>
