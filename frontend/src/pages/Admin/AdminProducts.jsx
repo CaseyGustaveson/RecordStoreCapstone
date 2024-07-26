@@ -20,7 +20,7 @@ const AdminProducts = () => {
             if (!token) {
                 navigate('/login');
             } else if (role !== 'ADMIN') {
-                navigate('/unauthorized');
+                navigate('/');
             } else {
                 fetchProducts();
             }
