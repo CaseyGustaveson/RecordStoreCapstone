@@ -28,8 +28,9 @@ const Navbar = () => {
   };
 
   const handleSearchSubmit = () => {
-    navigate(`/search?query=${encodeURIComponent(searchTerm)}`);
-    console.log('Search term:', searchTerm);
+    const searchUrl = `/search?query=${encodeURIComponent(searchTerm)}`;
+    console.log('Navigating to:', searchUrl); // Log the URL
+    navigate(searchUrl);
   };
 
   const handleLoginClick = () => {

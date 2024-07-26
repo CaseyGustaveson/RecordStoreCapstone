@@ -35,7 +35,7 @@ const HomePage = () => {
         <Typography variant="h6" paragraph>
           Shop our wide collection of records!
         </Typography>
-        <Button variant="contained" color="primary" size="large" style={styles.button} href="/shop">
+        <Button variant="contained" color="primary" size="large" style={styles.button} href="/products">
           Shop Now
         </Button>
         <Grid container spacing={2} sx={{ mt: 4 }}>
