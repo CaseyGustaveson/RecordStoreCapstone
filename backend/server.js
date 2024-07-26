@@ -2,9 +2,10 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './src/api/auth.js'; 
-import userRoutes from './src/api/profile.js'; 
 import categoryRoutes from './src/api/category.js';
 import productRoutes from './src/api/products.js';
+import profileRoutes from './src/api/profile.js';
+import userRoutes from './src/api/users.js';
 
 
 
@@ -18,9 +19,10 @@ app.use(cors());
 
 // Use routes
 app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
+app.use('/api/profile', profileRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/users', userRoutes);
 
 
 
