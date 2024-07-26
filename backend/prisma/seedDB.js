@@ -116,4 +116,13 @@ async function seedDatabase() {
 
   
 
-seedDatabase();
+    seedDatabase();
+  }
+  catch (error) {
+    console.error(error);
+  }
+  finally {
+    await prisma.$disconnect();
+  }
+}
+

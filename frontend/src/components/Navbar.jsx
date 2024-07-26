@@ -14,8 +14,6 @@ const Navbar = () => {
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
   
-    setIsLoggedIn(!!token);
-    setUserRole(role);
   
     console.log('Token from localStorage:', token);
     console.log('Role from localStorage:', role);
@@ -58,6 +56,7 @@ const Navbar = () => {
   };
 
   const handleLogoutClick = () => {
+    console.log('Logging out...'); 
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     setIsLoggedIn(false);
@@ -105,7 +104,7 @@ const Navbar = () => {
         ) : (
           <>
             <IconButton color="inherit" onClick={handleProfileClick}>
-              <AccountCircleIcon /> {/* Profile icon */}
+              <AccountCircleIcon />
             </IconButton>
             <Button color="inherit" onClick={handleLogoutClick}>Logout</Button>
           </>
