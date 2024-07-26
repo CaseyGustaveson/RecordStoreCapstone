@@ -114,40 +114,6 @@ const clearCart = async (req, res) => {
     }
 };
 
-const checkoutCart = async (req, res) => {
-    const userId = req.user.id;
-
-    try {
-        const cartItems = await prisma.cartItem.findMany({
-            where: { userId: userId }
-        });
-
-        if (cartItems.length === 0) {
-            return res.status(400).json({ message: 'Cart is empty' });
-        }
-
-        const order = await prisma.order.create({
-            data: {
-                userId: userId,
-                orderItems: {
-                    create: cartItems.map(item => ({
-                        productId: item.productId,
-                        quantity: item.quantity
-                    }))
-                }
-            }
-        });
-
-        await prisma.cartItem.deleteMany({
-            where: { userId: userId }
-        });
-
-        res.json(order);
-    } catch (error) {
-        console.error('Error checking out cart:', error);
-        res.sendStatus(500);
-    }
-};
 
 // Define routes directly in the file
 router.get('/cart', authenticateToken, getCartItems);
@@ -155,6 +121,6 @@ router.post('/cart', authenticateToken, addToCart);
 router.put('/cart/:itemId', authenticateToken, updateCartItem);
 router.delete('/cart/:itemId', authenticateToken, removeCartItem);
 router.delete('/cart', authenticateToken, clearCart);
-router.post('/cart/checkout', authenticateToken, checkoutCart);
+// Remove checkoutCart route as it's no longer needed
 
 export default router;

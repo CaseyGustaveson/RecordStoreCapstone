@@ -19,6 +19,8 @@ const Navbar = () => {
   
     console.log('Token from localStorage:', token);
     console.log('Role from localStorage:', role);
+    setIsLoggedIn(!!token);
+    setUserRole(role);
   }, []);
 
   const handleSearchChange = (event) => {

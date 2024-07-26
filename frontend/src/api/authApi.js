@@ -1,10 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const loginUser = async ({ email, password }) => {
-    const navigate = useNavigate();
-
     try {
-        const response = await fetch('/api/auth/login', {
+        const response = await fetch(`${API_URL}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
@@ -18,12 +16,6 @@ export const loginUser = async ({ email, password }) => {
         const data = await response.json();
         localStorage.setItem('token', data.token);
         localStorage.setItem('role', data.role);
-
-        if (data.role === 'ADMIN') {
-            navigate('/admin');
-        } else {
-            navigate('/');
-        }
 
         return data;
     } catch (error) {

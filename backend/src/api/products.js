@@ -6,8 +6,8 @@ dotenv.config();
 const prisma = new PrismaClient();
 const router = express.Router();
 
-// Get all products
-router.get('/', async (req, res) => {
+// Route handler for getting all products
+const getAllProducts = async (req, res) => {
     try {
         const products = await prisma.product.findMany();
         res.json(products);
@@ -15,10 +15,10 @@ router.get('/', async (req, res) => {
         console.error('Error fetching products:', error);
         res.status(500).json({ error: 'Failed to fetch products' });
     }
-});
+};
 
-// Get product by ID
-router.get('/:id', async (req, res) => {
+// Route handler for getting a product by ID
+const getProductById = async (req, res) => {
     const { id } = req.params;
     try {
         const product = await prisma.product.findUnique({
@@ -33,11 +33,11 @@ router.get('/:id', async (req, res) => {
         console.error('Error fetching product:', error);
         res.status(500).json({ error: 'Failed to fetch product' });
     }
-});
+};
 
-// Create a new product
-router.post('/', async (req, res) => {
-    const { name, description, price, quantity, categoryId } = req.body;
+// Route handler for creating a new product
+const createProduct = async (req, res) => {
+    const { name, description, price, quantity, categoryId, imageUrl } = req.body;
     try {
         const newProduct = await prisma.product.create({
             data: { 
@@ -45,7 +45,8 @@ router.post('/', async (req, res) => {
                 description, 
                 price, 
                 quantity, 
-                categoryId: Number(categoryId) 
+                categoryId: Number(categoryId),
+                imageUrl
             }
         });
         res.status(201).json(newProduct);
@@ -53,12 +54,12 @@ router.post('/', async (req, res) => {
         console.error('Error creating product:', error);
         res.status(500).json({ error: 'Failed to create product' });
     }
-});
+};
 
-// Update a product
-router.put('/:id', async (req, res) => {
+// Route handler for updating a product
+const updateProduct = async (req, res) => {
     const { id } = req.params;
-    const { name, description, price, quantity, categoryId } = req.body;
+    const { name, description, price, quantity, categoryId, imageUrl } = req.body;
     try {
         const updatedProduct = await prisma.product.update({
             where: { id: Number(id) },
@@ -68,7 +69,7 @@ router.put('/:id', async (req, res) => {
                 price, 
                 quantity, 
                 categoryId: Number(categoryId),
-                imageUrl: req.body.imageUrl
+                imageUrl
             }
         });
         res.json(updatedProduct);
@@ -76,20 +77,61 @@ router.put('/:id', async (req, res) => {
         console.error('Error updating product:', error);
         res.status(500).json({ error: 'Failed to update product' });
     }
-});
+};
 
-// Delete a product
-router.delete('/:id', async (req, res) => {
+// Route handler for searching products
+const searchProducts = async (req, res) => {
+    const { q } = req.query;
+    try {
+        const products = await prisma.product.findMany({
+            where: {
+                name: {
+                    contains: q,
+                    mode: 'insensitive', // Optional: case insensitive search
+                },
+            },
+        });
+        res.json(products);
+    } catch (error) {
+        console.error('Error searching products:', error);
+        res.status(500).json({ error: 'Error searching products' });
+    }
+};
+
+// Route handler for deleting a product
+const deleteProduct = async (req, res) => {
     const { id } = req.params;
     try {
+        // Check if the product exists before trying to delete
+        const product = await prisma.product.findUnique({
+            where: { id: Number(id) }
+        });
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        // Delete dependent cart items
+        await prisma.cartItem.deleteMany({
+            where: { productId: Number(id) }
+        });
+
+        // Proceed to delete the product
         await prisma.product.delete({
             where: { id: Number(id) }
         });
-        res.status(204).end();
+        res.json({ message: 'Product deleted successfully' });
     } catch (error) {
         console.error('Error deleting product:', error);
-        res.status(500).json({ error: 'Failed to delete product' });
+        res.status(500).json({ error: `Failed to delete product: ${error.message}` });
     }
-});
+};
+
+// Define routes
+router.get('/', getAllProducts);
+router.get('/:id', getProductById);
+router.post('/', createProduct);
+router.put('/:id', updateProduct);
+router.delete('/:id', deleteProduct);
+router.get('/search', searchProducts);
 
 export default router;
