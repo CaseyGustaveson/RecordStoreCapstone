@@ -51,10 +51,15 @@ const AdminProducts = () => {
       try {
         const [productsResponse, categoriesResponse] = await Promise.all([
           axios.get(API_URL, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(CATEGORY_API_URL, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(CATEGORY_API_URL, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
 
-        if (Array.isArray(productsResponse.data) && Array.isArray(categoriesResponse.data)) {
+        if (
+          Array.isArray(productsResponse.data) &&
+          Array.isArray(categoriesResponse.data)
+        ) {
           setProducts(productsResponse.data);
           setCategories(categoriesResponse.data);
         } else {
@@ -72,21 +77,57 @@ const AdminProducts = () => {
 
   const addProduct = async () => {
     try {
-      const response = await axios.post(API_URL, newProduct, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.post(
+        API_URL,
+        {
+          ...newProduct,
+          categoryId: newProduct.categoryId, // Ensure categoryId is sent correctly
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setProducts([...products, response.data]);
       setNewProduct({
         name: "",
         releaseYear: "",
         price: "",
         quantity: "",
-        categoryId: "",
+        categoryId: "", // Reset categoryId here
         imageUrl: "",
       });
       setSuccess("Product added successfully");
     } catch (error) {
       setError("Failed to add product");
+    }
+  };
+
+  const editProduct = async (id) => {
+    try {
+      const response = await axios.put(
+        `${API_URL}/${id}`,
+        {
+          ...newProduct,
+          categoryId: newProduct.categoryId, // Ensure categoryId is sent correctly
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setProducts(
+        products.map((product) => (product.id === id ? response.data : product))
+      );
+      setNewProduct({
+        name: "",
+        releaseYear: "",
+        price: "",
+        quantity: "",
+        categoryId: "", // Reset categoryId here
+        imageUrl: "",
+      });
+      setSuccess("Product edited successfully");
+    } catch (error) {
+      setError("Failed to edit product");
     }
   };
 
@@ -105,6 +146,11 @@ const AdminProducts = () => {
   if (isLoading) {
     return <CircularProgress />;
   }
+
+  const getCategoryName = (categoryId) => {
+    const category = categories.find((cat) => cat.id === categoryId);
+    return category ? category.name : "Unknown";
+  };
 
   return (
     <Box padding={2}>
@@ -138,13 +184,6 @@ const AdminProducts = () => {
           value={newProduct.quantity}
           onChange={(e) =>
             setNewProduct({ ...newProduct, quantity: e.target.value })
-          }
-        />
-        <TextField
-          label="Category"
-          value={newProduct.category}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, category: e.target.value })
           }
         />
         <TextField
@@ -187,10 +226,16 @@ const AdminProducts = () => {
           >
             <Box>
               <Typography variant="h6">Album: {product.name}</Typography>
-              <Typography variant="body1">Release Year: {product.releaseYear}</Typography>
+              <Typography variant="body1">
+                Release Year: {product.releaseYear}
+              </Typography>
               <Typography variant="body1">${product.price}</Typography>
-              <Typography variant="body1">{product.quantity} copies available</Typography>
-              <Typography variant="body1"> {product.category}Category</Typography>
+              <Typography variant="body1">
+                {product.quantity} copies available
+              </Typography>
+              <Typography variant="body1">
+                Category: {getCategoryName(product.categoryId)}
+              </Typography>
               <img
                 src={product.imageUrl}
                 alt={product.name}
@@ -202,6 +247,9 @@ const AdminProducts = () => {
               onClick={() => deleteProduct(product.id)}
             >
               Delete
+            </Button>
+            <Button variant="contained" onClick={() => editProduct(product.id)}>
+              Edit
             </Button>
           </Box>
         ))}

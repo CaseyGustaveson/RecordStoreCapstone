@@ -1,6 +1,3 @@
-import React from 'react';
-import { Card, CardContent, Typography, CardMedia, Button, Stack } from '@mui/material';
-
 const ProductCard = ({ product, onEdit, onSubmit }) => {
   // Fallback image in case product.imageUrl is not provided
   const defaultImage = 'https://via.placeholder.com/200x140?text=No+Image';
@@ -11,8 +8,8 @@ const ProductCard = ({ product, onEdit, onSubmit }) => {
         component="img"
         alt={product.name}
         height="140"
-        image={product.imageUrl || defaultImage} // Fallback image
-        sx={{ objectFit: 'cover' }} // Ensure image covers the area
+        image={product.imageUrl || defaultImage} 
+        sx={{ objectFit: 'cover' }}
       />
       <CardContent>
         <Typography variant="h6" component="div" sx={{ mb: 1 }}>
