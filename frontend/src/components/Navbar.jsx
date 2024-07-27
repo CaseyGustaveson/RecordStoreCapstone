@@ -108,8 +108,6 @@ const Navbar = () => {
             </IconButton>
             <Button color="inherit" onClick={handleLogoutClick}>
               Logout
-              {/* Debugging text */}
-              <Typography variant="body2" style={{ marginLeft: '8px' }}>Logout</Typography>
             </Button>
           </>
         )}

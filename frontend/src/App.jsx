@@ -8,8 +8,8 @@ import SearchResultsPage from "./pages/SearchResultsPage";
 import AdminPage from "./pages/AdminPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProductsPage from "./pages/ProductPage";
-import AdminProducts from "./pages/Admin/AdminProducts";
-import AdminUsers from "./pages/Admin/AdminUsers";
+import AdminProducts from "./pages/Admin/AdminProducts";  
+import AdminCategories from "./pages/Admin/AdminCategories";
 
 
 
@@ -27,7 +27,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/search" element={<SearchResultsPage />} />
           <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/categories" element={<AdminCategories />} />
         </Routes>
       </div>
     </Router>

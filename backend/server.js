@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './src/api/auth.js'; 
-import categoryRoutes from './src/api/category.js';
+import categoryRoutes from './src/api/categories.js';
 import productRoutes from './src/api/products.js';
 import profileRoutes from './src/api/profile.js';
 import userRoutes from './src/api/users.js';

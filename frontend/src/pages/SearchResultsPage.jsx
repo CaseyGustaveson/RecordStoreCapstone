@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Grid, CircularProgress, Alert, Card, CardContent, CardMedia, Button } from '@mui/material';
 import { useLocation } from 'react-router-dom';
-import { getProductsBySearch } from '../api/productSearch'; // Ensure this points to the correct API function
+import { getProductsBySearch } from '../api/productSearch'; 
 
 const SearchResultsPage = ({ showSearchBar = true }) => {
   const location = useLocation();
@@ -71,7 +71,7 @@ const SearchResultsPage = ({ showSearchBar = true }) => {
                   <CardContent>
                     <Typography variant="h5">{product.name}</Typography>
                     <Typography variant="body2" color="textSecondary">
-                      {product.description}
+                      {product.releaseYear}
                     </Typography>
                     <Typography variant="h6">${product.price}</Typography>
                     <Button variant="contained" color="primary" onClick={() => { /* Handle add to cart */ }}>

@@ -82,7 +82,7 @@ async function seedDatabase() {
     // Create products
     const productsData = createdCategories.map((category, index) => ({
       name: `Product ${index + 1}`,
-      description: `Description of product ${index + 1}`,
+      releaseYear: `Release Year ${index + 1}`,
       price: (index + 1) * 10 - 0.01,
       quantity: index + 1,
       categoryId: category.id,
