@@ -22,13 +22,13 @@ model User {
 model Product {
   id          Int         @id @default(autoincrement())
   name        String
-  description String?
+  releaseYear String
   price       Float
   quantity    Int
   categoryId  Int
   imageUrl    String?
   cartItems   CartItem[]
-  category    Category    @relation(fields: [categoryId], references: [id])
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 }
 
 model Category {

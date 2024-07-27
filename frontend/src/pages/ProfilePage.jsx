@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Typography, Button, Grid, CircularProgress } from '@mui/material';
-import { getUserProfile } from '../api/userApi'; // Import the getUserProfile function
+import { getUserProfile } from '../api/userApi'; 
 
 const ProfilePage = () => {
     const [user, setUser] = useState(null);
@@ -11,7 +11,7 @@ const ProfilePage = () => {
         const fetchUserProfile = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const data = await getUserProfile(token); // Use the getUserProfile function
+                const data = await getUserProfile(token); 
                 setUser(data);
                 setLoading(false);
             } catch (err) {
