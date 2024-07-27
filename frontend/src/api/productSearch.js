@@ -39,15 +39,13 @@ export const createProduct = async (productData) => {
 };
 
 // Update an existing product
-export const updateProduct = async (productId, productData) => {
+export const updateProduct = async (id, productData) => {
   try {
-    const response = await axios.put(`${API_URL}/products/${productId}`, productData, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return response.data;
+      const response = await axios.put(`${API_URL}/products/${id}`, productData);
+      return response.data;
   } catch (error) {
-    console.error('Error updating product:', error);
-    return null;
+      console.error('Error updating product:', error);
+      throw error;
   }
 };
 

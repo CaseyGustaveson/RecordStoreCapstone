@@ -1,6 +1,7 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config();
 const prisma = new PrismaClient();
@@ -35,45 +36,54 @@ const getProductById = async (req, res) => {
     }
 };
 
+
+
 // Route handler for creating a new product
 const createProduct = async (req, res) => {
     const { name, releaseYear, price, quantity, categoryId, imageUrl } = req.body;
+
+    // Log the incoming request body
+    console.log("Request body:", req.body);
+
     try {
-        const quantityInt = parseInt(quantity, 10);
-        if (isNaN(quantityInt) || quantityInt < 0) {
-            return res.status(400).json({ error: 'Invalid quantity' });
+        if (!categoryId) {
+            throw new Error("Category ID is required");
         }
-        const priceNumber = parseFloat(price.replace('$', ''));
-        if (isNaN(priceNumber) || priceNumber <= 0) {
-            return res.status(400).json({ error: 'Invalid price' });
+
+        // Handle price parsing
+        const parsedPrice = parseFloat(price.replace('$', ''));
+        if (isNaN(parsedPrice)) {
+            throw new Error("Valid price is required");
         }
 
         const newProduct = await prisma.product.create({
-            data: { 
-                name, 
-                releaseYear, 
-                price: priceNumber,
-                quantity: quantityInt,
+            data: {
+                name,
+                releaseYear,
+                price: parsedPrice, // Use parsed price
+                quantity: parseInt(quantity, 10), // Ensure quantity is parsed as integer
                 imageUrl,
                 category: {
                     connect: {
-                        id: categoryId
-                    }
-                }
-                
-            }
+                        id: parseInt(categoryId, 10), // Ensure categoryId is parsed as integer
+                    },
+                },
+            },
         });
         res.status(201).json(newProduct);
     } catch (error) {
         console.error('Error creating product:', error);
-        res.status(500).json({ error: 'Failed to create product' });
+        res.status(500).json({ error: "Error creating product", details: error.message });
     }
 };
+
+
 
 // Route handler for updating a product
 const updateProduct = async (req, res) => {
     const { id } = req.params;
     const { name, releaseYear, price, quantity, categoryId, imageUrl } = req.body;
+
     try {
         // Ensure product exists
         const existingProduct = await prisma.product.findUnique({
@@ -83,16 +93,27 @@ const updateProduct = async (req, res) => {
             return res.status(404).json({ error: 'Product not found' });
         }
 
+        // Convert price and quantity to their appropriate types
+        const updatedData = {
+            name: name ?? existingProduct.name,
+            releaseYear: releaseYear ?? existingProduct.releaseYear,
+            price: price !== undefined ? parseFloat(price.replace(/[^0-9.]/g, '')) : existingProduct.price,
+            quantity: quantity !== undefined ? parseInt(quantity, 10) : existingProduct.quantity,
+            imageUrl: imageUrl ?? existingProduct.imageUrl,
+            category: categoryId ? { connect: { id: parseInt(categoryId) } } : undefined
+        };
+
+        // Check for valid data
+        if (isNaN(updatedData.price) || updatedData.price <= 0) {
+            return res.status(400).json({ error: 'Invalid price' });
+        }
+        if (isNaN(updatedData.quantity) || updatedData.quantity < 0) {
+            return res.status(400).json({ error: 'Invalid quantity' });
+        }
+
         const updatedProduct = await prisma.product.update({
             where: { id: Number(id) },
-            data: { 
-                name: name ?? existingProduct.name, 
-                releaseYear: releaseYear ?? existingProduct.releaseYear,
-                price: price ?? existingProduct.price, 
-                quantity: quantity ?? existingProduct.quantity, 
-                categoryId: categoryId ?? existingProduct.categoryId,
-                imageUrl: imageUrl ?? existingProduct.imageUrl
-            }
+            data: updatedData
         });
         res.json(updatedProduct);
     } catch (error) {

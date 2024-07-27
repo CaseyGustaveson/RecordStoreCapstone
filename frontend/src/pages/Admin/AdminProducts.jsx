@@ -31,6 +31,8 @@ const AdminProducts = () => {
     categoryId: "",
     imageUrl: "",
   });
+  const [editMode, setEditMode] = useState(false);
+  const [currentProductId, setCurrentProductId] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const token = localStorage.getItem("token");
@@ -75,13 +77,21 @@ const AdminProducts = () => {
     checkAuth();
   }, [navigate, token, role]);
 
+  const handleSubmit = async () => {
+    if (editMode) {
+      await editProduct(currentProductId);
+    } else {
+      await addProduct();
+    }
+  };
+
   const addProduct = async () => {
     try {
       const response = await axios.post(
         API_URL,
         {
           ...newProduct,
-          categoryId: newProduct.categoryId, // Ensure categoryId is sent correctly
+          categoryId: newProduct.categoryId,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -93,7 +103,7 @@ const AdminProducts = () => {
         releaseYear: "",
         price: "",
         quantity: "",
-        categoryId: "", // Reset categoryId here
+        categoryId: "",
         imageUrl: "",
       });
       setSuccess("Product added successfully");
@@ -108,7 +118,8 @@ const AdminProducts = () => {
         `${API_URL}/${id}`,
         {
           ...newProduct,
-          categoryId: newProduct.categoryId, // Ensure categoryId is sent correctly
+          price: newProduct.price.toString(), // Ensure price is a string
+          categoryId: newProduct.categoryId,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -122,13 +133,23 @@ const AdminProducts = () => {
         releaseYear: "",
         price: "",
         quantity: "",
-        categoryId: "", // Reset categoryId here
+        categoryId: "",
         imageUrl: "",
       });
+      setEditMode(false);
+      setCurrentProductId(null);
       setSuccess("Product edited successfully");
     } catch (error) {
       setError("Failed to edit product");
     }
+  };
+  
+  
+
+  const handleEditClick = (product) => {
+    setNewProduct(product);
+    setEditMode(true);
+    setCurrentProductId(product.id);
   };
 
   const deleteProduct = async (id) => {
@@ -208,8 +229,8 @@ const AdminProducts = () => {
             ))}
           </Select>
         </FormControl>
-        <Button variant="contained" onClick={addProduct}>
-          Add Product
+        <Button variant="contained" onClick={handleSubmit}>
+          {editMode ? "Save Changes" : "Add Product"}
         </Button>
       </Stack>
       <Box marginTop={2}>
@@ -242,14 +263,11 @@ const AdminProducts = () => {
                 style={{ width: 100, height: 100, objectFit: "contain" }}
               />
             </Box>
-            <Button
-              variant="contained"
-              onClick={() => deleteProduct(product.id)}
-            >
-              Delete
-            </Button>
-            <Button variant="contained" onClick={() => editProduct(product.id)}>
+            <Button variant="contained" onClick={() => handleEditClick(product)}>
               Edit
+            </Button>
+            <Button variant="contained" onClick={() => deleteProduct(product.id)}>
+              Delete
             </Button>
           </Box>
         ))}
