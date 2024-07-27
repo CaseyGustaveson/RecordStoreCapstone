@@ -11,6 +11,8 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
+  Grid,
+  InputLabel,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -143,8 +145,6 @@ const AdminProducts = () => {
       setError("Failed to edit product");
     }
   };
-  
-  
 
   const handleEditClick = (product) => {
     setNewProduct(product);
@@ -178,100 +178,134 @@ const AdminProducts = () => {
       <Typography variant="h4" gutterBottom>
         Products
       </Typography>
-      <Stack spacing={2} direction="row">
-        <TextField
-          label="Name"
-          value={newProduct.name}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, name: e.target.value })
-          }
-        />
-        <TextField
-          label="Release Year"
-          value={newProduct.releaseYear}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, releaseYear: e.target.value })
-          }
-        />
-        <TextField
-          label="Price"
-          value={newProduct.price}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, price: e.target.value })
-          }
-        />
-        <TextField
-          label="Quantity"
-          value={newProduct.quantity}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, quantity: e.target.value })
-          }
-        />
-        <TextField
-          label="Image URL"
-          value={newProduct.imageUrl}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, imageUrl: e.target.value })
-          }
-        />
-        <FormControl>
-          <Select
-            value={newProduct.categoryId}
+      <Box display="flex" flexDirection="column" alignItems="center">
+        <Stack spacing={2} direction="ROW" width="80%">
+          <TextField
+            label="Name"
+            value={newProduct.name}
             onChange={(e) =>
-              setNewProduct({ ...newProduct, categoryId: e.target.value })
+              setNewProduct({ ...newProduct, name: e.target.value })
             }
-          >
-            <MenuItem value="">Select Category</MenuItem>
-            {categories.map((category) => (
-              <MenuItem key={category.id} value={category.id}>
-                {category.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Button variant="contained" onClick={handleSubmit}>
-          {editMode ? "Save Changes" : "Add Product"}
-        </Button>
-      </Stack>
-      <Box marginTop={2}>
-        {products.map((product) => (
-          <Box
-            key={product.id}
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            padding={2}
-            border="1px solid #ccc"
-            borderRadius={5}
-            marginBottom={2}
-          >
-            <Box>
-              <Typography variant="h6">Album: {product.name}</Typography>
-              <Typography variant="body1">
-                Release Year: {product.releaseYear}
-              </Typography>
-              <Typography variant="body1">${product.price}</Typography>
-              <Typography variant="body1">
-                {product.quantity} copies available
-              </Typography>
-              <Typography variant="body1">
-                Category: {getCategoryName(product.categoryId)}
-              </Typography>
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                style={{ width: 100, height: 100, objectFit: "contain" }}
-              />
-            </Box>
-            <Button variant="contained" onClick={() => handleEditClick(product)}>
-              Edit
-            </Button>
-            <Button variant="contained" onClick={() => deleteProduct(product.id)}>
-              Delete
-            </Button>
-          </Box>
-        ))}
+            fullWidth
+          />
+          <TextField
+            label="Release Year"
+            value={newProduct.releaseYear}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, releaseYear: e.target.value })
+            }
+            fullWidth
+          />
+          <TextField
+            label="Price"
+            value={newProduct.price}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, price: e.target.value })
+            }
+            fullWidth
+          />
+          <TextField
+            label="Quantity"
+            value={newProduct.quantity}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, quantity: e.target.value })
+            }
+            fullWidth
+          />
+          <TextField
+            label="Image URL"
+            value={newProduct.imageUrl}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, imageUrl: e.target.value })
+            }
+            fullWidth
+          />
+          <FormControl fullWidth>
+            <InputLabel id="category-label">Category</InputLabel>
+            <Select
+              labelId="category-label"
+              value={newProduct.categoryId}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, categoryId: e.target.value })
+              }
+              displayEmpty
+              inputProps={{ "aria-label": "Select Category" }}
+            >
+              <MenuItem value=""></MenuItem>
+              {categories.map((category) => (
+                <MenuItem key={category.id} value={category.id}>
+                  {category.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button variant="contained" onClick={handleSubmit} fullWidth>
+            {editMode ? "Save Changes" : "Add Product"}
+          </Button>
+        </Stack>
       </Box>
+      <Grid container spacing={2} marginTop={2}>
+        {products.map((product) => (
+          <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="space-between"
+              padding={2}
+              border="1px solid #ccc"
+              borderRadius={5}
+              height="100%"
+            >
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                textAlign="center"
+              >
+                <Typography variant="h5">Album: {product.name}</Typography>
+                <Typography variant="body1">
+                  Release Year: {product.releaseYear}
+                </Typography>
+                <Typography variant="body1">${product.price}</Typography>
+                <Typography variant="body1">
+                  {product.quantity} copies available
+                </Typography>
+                <Typography variant="body1">
+                  Category: {getCategoryName(product.categoryId)}
+                </Typography>
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  style={{ width: 100, height: 100, objectFit: "contain" }}
+                />
+              </Box>
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                width="100%"
+                marginTop={2}
+              >
+                <Button
+                  variant="contained"
+                  onClick={() => handleEditClick(product)}
+                  sx={{ width: "80%", marginBottom: 1 }}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => deleteProduct(product.id)}
+                  sx={{ width: "80%" }}
+                >
+                  Delete
+                </Button>
+              </Box>
+            </Box>
+          </Grid>
+        ))}
+      </Grid>
       <Snackbar
         open={!!error}
         autoHideDuration={6000}
