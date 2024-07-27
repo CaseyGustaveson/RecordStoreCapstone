@@ -1,113 +1,156 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Stack, TextField } from '@mui/material';
-import axios from 'axios';
-import ProductCard from '../components/ProductCard';
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Typography,
+  CircularProgress,
+  Snackbar,
+  Alert,
+  Grid,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const API_URL = 'http://localhost:3001/api/products';
+const API_URL = "http://localhost:3001/api/products";
+const CATEGORY_API_URL = "http://localhost:3001/api/categories";
+const CART_API_URL = "http://localhost:3001/api/cart";
 
-const ProductsPage = () => {
-    const [products, setProducts] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
-    const [name, setName] = useState('');
-    const [price, setPrice] = useState('');
-    const [releaseYear, setReleaseYear] = useState('');
-    const [quantity, setQuantity] = useState('');
-    const [category, setCategory] = useState('');
+const Products = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const token = localStorage.getItem("token");
 
-    useEffect(() => {
-        fetchProducts();
-    }, []);
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const [productsResponse, categoriesResponse] = await Promise.all([
+          axios.get(API_URL),
+          axios.get(CATEGORY_API_URL),
+        ]);
 
-    useEffect(() => {
-        applyFilters();
-    }, [name, releaseYear, price, quantity, products, category]);
-
-    const fetchProducts = async () => {
-        try {
-            const response = await axios.get(API_URL);
-            setProducts(response.data);
-        } catch (error) {
-            console.error('Error fetching products', error);
+        if (
+          Array.isArray(productsResponse.data) &&
+          Array.isArray(categoriesResponse.data)
+        ) {
+          setProducts(productsResponse.data);
+          setCategories(categoriesResponse.data);
+        } else {
+          throw new Error("Unexpected response format");
         }
+        setIsLoading(false);
+      } catch (error) {
+        setError("Failed to fetch data");
+        setIsLoading(false);
+      }
     };
 
-    const applyFilters = () => {
-        let filtered = products;
+    fetchInitialData();
+  }, []);
 
-        if (name) {
-            filtered = filtered.filter(product => product.name.toLowerCase().includes(name.toLowerCase()));
+  const addToCart = async (productId) => {
+    try {
+      await axios.post(
+        CART_API_URL,
+        { productId },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
+      );
+      setSuccess("Product added to cart successfully");
+    } catch (error) {
+      setError("Failed to add product to cart");
+    }
+  };
 
-        if (releaseYear) {
-            const releaseYearInt = parseInt(releaseYear, 10);
-            if (!isNaN(releaseYearInt)) {
-                filtered = filtered.filter(product => product.releaseYear === releaseYearInt);
-            }
-        }
+  if (isLoading) {
+    return <CircularProgress />;
+  }
 
-        if (price) {
-            const priceNumber = parseFloat(price);
-            if (!isNaN(priceNumber)) {
-                filtered = filtered.filter(product => product.price <= priceNumber);
-            }
-        }
+  const getCategoryName = (categoryId) => {
+    const category = categories.find((cat) => cat.id === categoryId);
+    return category ? category.name : "Unknown";
+  };
 
-        if (quantity) {
-            const quantityInt = parseInt(quantity, 10);
-            if (!isNaN(quantityInt)) {
-                filtered = filtered.filter(product => product.quantity >= quantityInt);
-            }
-        }
-
-        setFilteredProducts(filtered);
-    };
-
-    return (
-        <Box sx={{ p: 4 }}>
-            <Typography variant="h4" gutterBottom>Products</Typography>
-            <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-                <Typography variant="h6">Name</Typography>
-                <TextField
-                    label="Name"
-                    variant="outlined"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+  return (
+    <Box padding={2}>
+      <Typography variant="h4" gutterBottom>
+        Products
+      </Typography>
+      <Grid container spacing={2} marginTop={2}>
+        {products.map((product) => (
+          <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="space-between"
+              padding={2}
+              border="1px solid #ccc"
+              borderRadius={5}
+              height="100%"
+            >
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                textAlign="center"
+              >
+                <Typography variant="h5">Album: {product.name}</Typography>
+                <Typography variant="body1">
+                  Release Year: {product.releaseYear}
+                </Typography>
+                <Typography variant="body1">${product.price}</Typography>
+                <Typography variant="body1">
+                  {product.quantity} copies available
+                </Typography>
+                <Typography variant="body1">
+                  Category: {getCategoryName(product.categoryId)}
+                </Typography>
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  style={{ width: 100, height: 100, objectFit: "contain" }}
                 />
-                <Typography variant="h6">Release Year</Typography>
-                <TextField
-                    label="Release Year"
-                    variant="outlined"
-                    value={releaseYear}
-                    onChange={(e) => setReleaseYear(e.target.value)}
-                />
-                <Typography variant="h6">Price</Typography>
-                <TextField
-                    label="Max Price"
-                    variant="outlined"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                />
-                <Typography variant="h6">Available Quantity</Typography>
-                <TextField
-                    label='Available Quantity'
-                    variant="outlined"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                />
-            </Stack>
-            <TextField
-                label="Category"
-                variant="outlined"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-            />
-            <Stack spacing={2}>
-                {filteredProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                ))}
-            </Stack>
-        </Box>
-    );
+              </Box>
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                width="100%"
+                marginTop={2}
+              >
+                <Button
+                  variant="contained"
+                  onClick={() => addToCart(product.id)}
+                  sx={{ width: "80%" }}
+                >
+                  Add to Cart
+                </Button>
+              </Box>
+            </Box>
+          </Grid>
+        ))}
+      </Grid>
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError("")}
+      >
+        <Alert severity="error">{error}</Alert>
+      </Snackbar>
+      <Snackbar
+        open={!!success}
+        autoHideDuration={6000}
+        onClose={() => setSuccess("")}
+      >
+        <Alert severity="success">{success}</Alert>
+      </Snackbar>
+    </Box>
+  );
 };
 
-export default ProductsPage
+export default Products;
