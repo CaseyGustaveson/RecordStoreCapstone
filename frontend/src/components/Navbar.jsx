@@ -1,23 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, Button, IconButton, TextField, Box } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
 
-const Navbar = () => {
+const Navbar = ({ isLoggedIn, userRole, setIsLoggedIn, setUserRole }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
-    console.log('Token from localStorage:', token);
-    console.log('Role from localStorage:', role);
-    setIsLoggedIn(!!token);
-    setUserRole(role);
-  }, []);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -25,7 +14,6 @@ const Navbar = () => {
 
   const handleSearchSubmit = () => {
     const searchUrl = `/search?query=${encodeURIComponent(searchTerm)}`;
-    console.log('Navigating to:', searchUrl);
     navigate(searchUrl);
   };
 
@@ -49,17 +37,15 @@ const Navbar = () => {
     if (userRole === 'ADMIN') {
       navigate('/admin');
     } else {
-      navigate('/user'); // Assuming '/user' is the profile page for regular users
+      navigate('/profile');
     }
   };
 
   const handleLogoutClick = () => {
-    console.log('Logging out...');
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     setIsLoggedIn(false);
     setUserRole(null);
-    console.log('Logged out');
     navigate('/login');
   };
 
@@ -103,7 +89,6 @@ const Navbar = () => {
           <>
             <IconButton color="inherit" onClick={handleProfileClick}>
               <AccountCircleIcon />
-              {/* Debugging text */}
               <Typography variant="body2" style={{ marginLeft: '8px' }}>Profile</Typography>
             </IconButton>
             <Button color="inherit" onClick={handleLogoutClick}>
