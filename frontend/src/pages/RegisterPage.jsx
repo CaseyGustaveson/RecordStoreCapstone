@@ -7,7 +7,6 @@ const RegisterPage = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
-    const [address, setAddress] = useState("");
 
     const [alertMessage, setAlertMessage] = useState("");
     const [alertSeverity, setAlertSeverity] = useState("success");
@@ -15,25 +14,30 @@ const RegisterPage = () => {
 
     const handleRegister = async () => {
         try {
-            const apiUrl = import.meta.env.VITE_API_URL; // Get API URL from environment variable
+            const apiUrl = import.meta.env.VITE_API_URL;
             const response = await fetch(`${apiUrl}/api/auth/register`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ password, email, firstName, lastName, phoneNumber, address }),
+                body: JSON.stringify({ 
+                    password, 
+                    email, 
+                    firstname: firstName,  // Update to match backend field names
+                    lastname: lastName,
+                    phone: phoneNumber,
+                }),
             });
-
+    
             const data = await response.json();
-
+    
             if (response.ok) {
                 setPassword("");
                 setEmail("");
                 setFirstName("");
                 setLastName("");
                 setPhoneNumber("");
-                setAddress("");
-
+    
                 setAlertMessage("Registration successful!");
                 setAlertSeverity("success");
             } else {
@@ -47,6 +51,7 @@ const RegisterPage = () => {
         }
         setOpenAlert(true);
     };
+    
 
     const handleCloseAlert = () => {
         setOpenAlert(false);
@@ -103,14 +108,7 @@ const RegisterPage = () => {
                         fullWidth
                         sx={{ maxWidth: 350 }}
                     />
-                    <TextField
-                        label="Address"
-                        variant="outlined"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        fullWidth
-                        sx={{ maxWidth: 350 }}
-                    />
+                    
                     <TextField
                         label="Phone Number"
                         variant="outlined"

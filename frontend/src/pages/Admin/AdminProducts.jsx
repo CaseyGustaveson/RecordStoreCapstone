@@ -179,7 +179,7 @@ const AdminProducts = () => {
         Products
       </Typography>
       <Box display="flex" flexDirection="column" alignItems="center">
-        <Stack spacing={2} direction="ROW" width="80%">
+        <Stack spacing={2} direction="row" width="80%">
           <TextField
             label="Name"
             value={newProduct.name}

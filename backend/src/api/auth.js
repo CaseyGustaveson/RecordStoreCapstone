@@ -51,6 +51,8 @@ const isAdmin = (req, res, next) => {
 
 // Controller functions
 const register = async (req, res) => {
+    console.log('Request body:', req.body); // Log the request body
+
     const { firstname, lastname, email, phone, password, role } = req.body;
 
     if (!firstname || !lastname || !email || !password) {
@@ -76,10 +78,11 @@ const register = async (req, res) => {
 
         res.status(201).json({ token });
     } catch (error) {
-        console.error('Error during registration:', error);
+        console.error('Error during registration:', error); // Log error details
         res.status(500).json({ error: 'Registration failed' });
     }
 };
+
 
 const login = async (req, res) => {
     const { email, password } = req.body;
