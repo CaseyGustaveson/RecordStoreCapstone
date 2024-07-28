@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Stack, TextField, Button, Snackbar, Alert } from '@mui/material';
+import { Box, Typography, Stack, TextField, Snackbar, Alert } from '@mui/material';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3001/api/products';
+const API_URL = 'http://localhost:3001/api/cart';
+// PRODUCT_API_URL = 'http://localhost:3001/api/products';
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [openAlert, setOpenAlert] = useState(false);
 
     useEffect(() => {
-        // Fetch cart items from your cart storage or API
-        fetchCartItems();
+        // Fetch cart items from local storage or API
+        const items = JSON.parse(localStorage.getItem('cartItems')) || [];
+        setCartItems(items);
     }, []);
 
     const fetchCartItems = async () => {
         try {
-            // Example fetch request for cart items
             const response = await axios.get('/api/cart');
             setCartItems(response.data);
         } catch (error) {

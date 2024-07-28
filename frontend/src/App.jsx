@@ -10,6 +10,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ProductsPage from "./pages/ProductPage";
 import AdminProducts from "./pages/Admin/AdminProducts";  
 import AdminCategories from "./pages/Admin/AdminCategories";
+import CartPage from "./pages/CartPage";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -34,6 +35,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/search" element={<SearchResultsPage />} />
+          <Route path="/cart" element={<CartPage />} />
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/categories" element={<AdminCategories />} />
         </Routes>

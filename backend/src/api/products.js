@@ -1,7 +1,6 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
-import cors from 'cors';
 
 dotenv.config();
 const prisma = new PrismaClient();
@@ -36,21 +35,15 @@ const getProductById = async (req, res) => {
     }
 };
 
-
-
 // Route handler for creating a new product
 const createProduct = async (req, res) => {
     const { name, releaseYear, price, quantity, categoryId, imageUrl } = req.body;
-
-    // Log the incoming request body
-    console.log("Request body:", req.body);
 
     try {
         if (!categoryId) {
             throw new Error("Category ID is required");
         }
 
-        // Handle price parsing
         const parsedPrice = parseFloat(price.replace('$', ''));
         if (isNaN(parsedPrice)) {
             throw new Error("Valid price is required");
@@ -60,12 +53,12 @@ const createProduct = async (req, res) => {
             data: {
                 name,
                 releaseYear,
-                price: parsedPrice, // Use parsed price
-                quantity: parseInt(quantity, 10), // Ensure quantity is parsed as integer
+                price: parsedPrice,
+                quantity: parseInt(quantity, 10),
                 imageUrl,
                 category: {
                     connect: {
-                        id: parseInt(categoryId, 10), // Ensure categoryId is parsed as integer
+                        id: parseInt(categoryId, 10),
                     },
                 },
             },
@@ -77,15 +70,12 @@ const createProduct = async (req, res) => {
     }
 };
 
-
-
 // Route handler for updating a product
 const updateProduct = async (req, res) => {
     const { id } = req.params;
     const { name, releaseYear, price, quantity, categoryId, imageUrl } = req.body;
 
     try {
-        // Ensure product exists
         const existingProduct = await prisma.product.findUnique({
             where: { id: Number(id) }
         });
@@ -93,7 +83,6 @@ const updateProduct = async (req, res) => {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        // Convert price and quantity to their appropriate types
         const updatedData = {
             name: name ?? existingProduct.name,
             releaseYear: releaseYear ?? existingProduct.releaseYear,
@@ -103,7 +92,6 @@ const updateProduct = async (req, res) => {
             category: categoryId ? { connect: { id: parseInt(categoryId) } } : undefined
         };
 
-        // Check for valid data
         if (isNaN(updatedData.price) || updatedData.price <= 0) {
             return res.status(400).json({ error: 'Invalid price' });
         }
@@ -149,7 +137,6 @@ const searchProducts = async (req, res) => {
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
     try {
-        // Check if the product exists before trying to delete
         const product = await prisma.product.findUnique({
             where: { id: Number(id) }
         });
@@ -157,12 +144,10 @@ const deleteProduct = async (req, res) => {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        // Delete dependent cart items
         await prisma.cartItem.deleteMany({
             where: { productId: Number(id) }
         });
 
-        // Proceed to delete the product
         await prisma.product.delete({
             where: { id: Number(id) }
         });

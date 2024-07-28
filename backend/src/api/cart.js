@@ -7,30 +7,26 @@ dotenv.config();
 const prisma = new PrismaClient();
 const router = express.Router();
 
-// Middleware for Authentication
 const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) return res.sendStatus(401);
-
     try {
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         const user = await prisma.user.findUnique({
             where: { id: decoded.userId },
         });
-
         if (!user) return res.sendStatus(403);
-
         req.user = user;
-        next();
+        next()
     } catch (error) {
         console.error('Error verifying token:', error);
         res.sendStatus(403);
     }
 };
 
-// Controller functions
+
 const getCartItems = async (req, res) => {
     try {
         const cartItems = await prisma.cartItem.findMany({
@@ -53,7 +49,7 @@ const addToCart = async (req, res) => {
         });
 
         if (existingCartItem) {
-            // Update existing cart item
+            // Update cart item
             const updatedItem = await prisma.cartItem.update({
                 where: { id: existingCartItem.id },
                 data: { quantity: existingCartItem.quantity + quantity }
@@ -114,6 +110,35 @@ const clearCart = async (req, res) => {
     }
 };
 
+const checkoutCart = async (req, res) => {
+    try {
+        // Fetch cart items
+        const cartItems = await prisma.cartItem.findMany({
+            where: { userId: req.user.id },
+            include: { product: true }
+        });
+        // Create order
+        const order = await prisma.order.create({
+            data: {
+                userId: req.user.id,
+                orderItems: {
+                    create: cartItems.map(item => ({
+                        productId: item.productId,
+                        quantity: item.quantity
+                    }))
+                }
+            }
+        });
+        await prisma.cartItem.deleteMany({
+            where: { userId: req.user.id }
+        });
+        res.json(order);
+    } catch (error) {
+        console.error('Error checking out:', error);
+        res.sendStatus(500);
+    }
+}
+
 
 // Define routes directly in the file
 router.get('/cart', authenticateToken, getCartItems);
@@ -121,6 +146,9 @@ router.post('/cart', authenticateToken, addToCart);
 router.put('/cart/:itemId', authenticateToken, updateCartItem);
 router.delete('/cart/:itemId', authenticateToken, removeCartItem);
 router.delete('/cart', authenticateToken, clearCart);
-// Remove checkoutCart route as it's no longer needed
+router.post('/cart/checkout', authenticateToken, checkoutCart);
+router.get('/cart/checkout', authenticateToken, checkoutCart);
+
+
 
 export default router;

@@ -31,25 +31,18 @@ const Products = () => {
           axios.get(API_URL),
           axios.get(CATEGORY_API_URL),
         ]);
-
-        if (
-          Array.isArray(productsResponse.data) &&
-          Array.isArray(categoriesResponse.data)
-        ) {
-          setProducts(productsResponse.data);
-          setCategories(categoriesResponse.data);
-        } else {
-          throw new Error("Unexpected response format");
-        }
-        setIsLoading(false);
+  
+        setProducts(productsResponse.data);
+        setCategories(categoriesResponse.data);
       } catch (error) {
         setError("Failed to fetch data");
+      } finally {
         setIsLoading(false);
       }
     };
-
+  
     fetchInitialData();
-  }, []);
+  }, []);[];
 
   const addToCart = async (productId) => {
     try {

@@ -17,31 +17,11 @@ const Navbar = ({ isLoggedIn, userRole, setIsLoggedIn, setUserRole }) => {
     navigate(searchUrl);
   };
 
-  const handleLoginClick = () => {
-    navigate('/login');
+  const handleNavigation = (path) => {
+    navigate(path);
   };
 
-  const handleRegisterClick = () => {
-    navigate('/register');
-  };
-
-  const handleHomeClick = () => {
-    navigate('/');
-  };
-
-  const handleProductClick = () => {
-    navigate('/products');
-  };
-
-  const handleProfileClick = () => {
-    if (userRole === 'ADMIN') {
-      navigate('/admin');
-    } else {
-      navigate('/profile');
-    }
-  };
-
-  const handleLogoutClick = () => {
+  const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     setIsLoggedIn(false);
@@ -52,7 +32,7 @@ const Navbar = ({ isLoggedIn, userRole, setIsLoggedIn, setUserRole }) => {
   return (
     <AppBar position="static" style={{ backgroundColor: '#000000' }}>
       <Toolbar>
-        <Button color='inherit' onClick={handleHomeClick} style={{ textTransform: 'none' }}>
+        <Button color="inherit" onClick={() => handleNavigation('/')} style={{ textTransform: 'none' }}>
           <Typography variant="h6" style={{ flexGrow: 1 }}>
             My Record Shop
           </Typography>
@@ -74,31 +54,36 @@ const Navbar = ({ isLoggedIn, userRole, setIsLoggedIn, setUserRole }) => {
             }}
             style={{ marginRight: '8px', width: '200px' }}
           />
-          <Button variant="contained" style={{ backgroundColor: '#76eec6', color: '#fff' }} onClick={handleSearchSubmit}>
+          <Button
+            variant="contained"
+            style={{ backgroundColor: '#76eec6', color: '#fff' }}
+            onClick={handleSearchSubmit}
+          >
             Search
           </Button>
         </Box>
-        <Button color="inherit" onClick={handleHomeClick}>Home</Button>
-        <Button color="inherit" onClick={handleProductClick}>Shop</Button>
+        <Button color="inherit" onClick={() => handleNavigation('/')}>Home</Button>
+        <Button color="inherit" onClick={() => handleNavigation('/products')}>Shop</Button>
         {!isLoggedIn ? (
           <>
-            <Button color="inherit" onClick={handleRegisterClick}>Register</Button>
-            <Button color="inherit" onClick={handleLoginClick}>Login</Button>
+            <Button color="inherit" onClick={() => handleNavigation('/register')}>Register</Button>
+            <Button color="inherit" onClick={() => handleNavigation('/login')}>Login</Button>
           </>
         ) : (
           <>
-            <IconButton color="inherit" onClick={handleProfileClick}>
+            <IconButton color="inherit" onClick={() => handleNavigation(userRole === 'ADMIN' ? '/admin' : '/profile')}>
               <AccountCircleIcon />
               <Typography variant="body2" style={{ marginLeft: '8px' }}>Profile</Typography>
             </IconButton>
-            <Button color="inherit" onClick={handleLogoutClick}>
+            <Button color="inherit" onClick={handleLogout}>
               Logout
             </Button>
           </>
         )}
-        <IconButton color="inherit">
+        <IconButton color="inherit" onClick={() => handleNavigation('/cart')}>
           <ShoppingCartIcon />
         </IconButton>
+        <Button onClick={() => handleNavigation('/cart')} color="inherit"></Button>
       </Toolbar>
     </AppBar>
   );

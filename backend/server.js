@@ -6,6 +6,7 @@ import categoryRoutes from './src/api/categories.js';
 import productRoutes from './src/api/products.js';
 import profileRoutes from './src/api/profile.js';
 import userRoutes from './src/api/users.js';
+import cartRoutes from './src/api/cart.js';
 
 
 
@@ -23,6 +24,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/cart', cartRoutes);
 
 
 
