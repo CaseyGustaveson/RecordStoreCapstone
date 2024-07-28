@@ -3,7 +3,7 @@ import { Alert, Typography, Button, TextField, Snackbar, Stack, Box } from '@mui
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/authApi';
 
-const LoginPage = () => {
+const LoginPage = ({ setIsLoggedIn, setUserRole }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
@@ -26,6 +26,12 @@ const LoginPage = () => {
             setAlertMessage('Login successful!');
             setAlertSeverity('success');
             setOpenAlert(true);
+
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('role', data.role);
+
+            setIsLoggedIn(true);
+            setUserRole(data.role);
 
             if (data.role === 'ADMIN') {
                 navigate('/admin');
