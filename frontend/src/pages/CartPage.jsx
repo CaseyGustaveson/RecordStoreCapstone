@@ -18,7 +18,7 @@ const CartPage = () => {
     const fetchCartItems = async () => {
         try {
             const response = await axios.get('/api/cart');
-            setCartItems(response.data);
+            setCartItems(response.data);p
         } catch (error) {
             console.error('Error fetching cart items:', error);
         }
