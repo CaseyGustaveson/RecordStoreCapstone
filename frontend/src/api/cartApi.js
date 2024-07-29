@@ -1,88 +1,205 @@
-import Axios from 'axios';
+// backend/src/api/cart.js
 
-const CART_API_URL = 'http://localhost:3001/api/cart';  
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
 
+dotenv.config();
+const prisma = new PrismaClient();
+const router = express.Router();
 
+// Authentication middleware
+const authenticateToken = async (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
-export const fetchCartItems = async (token) => {
+  if (!token) return res.status(401).json({ error: 'No token provided' });
   try {
-    return await Axios.get(CART_API_URL, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
+    if (!user) return res.status(403).json({ error: 'Invalid user' });
+    req.user = user;
+    next();
   } catch (error) {
-    console.error('Error fetching cart items:', error);
-    return null;
-  }
-}
-
-export const addToCart = async (productId, token) => {
-  try {
-    const response = await Axios.post(
-      CART_API_URL,
-      { productId },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error('Error adding product to cart:', error);
-    throw error;
-  }
-}
-
-export const updateProductQuantity = async (productId, newQuantity, token) => {
-  try {
-      const response = await Axios.put(`${CART_API_URL}/${productId}`, 
-          { quantity: newQuantity },
-          {
-              headers: { Authorization: `Bearer ${token}` },
-          }
-      );
-      return response.data;
-  } catch (error) {
-      console.error('Error updating product quantity:', error);
-      throw error;
+    console.error('Error verifying token:', error.message);
+    console.error('Stack Trace:', error.stack);
+    res.status(403).json({ error: 'Token verification failed' });
   }
 };
-  
-export const deleteItem = async (productId, token) => {
+
+// Route handlers
+const getCartItems = async (req, res) => {
   try {
-    const response = await Axios.delete(`${CART_API_URL}/${productId}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    console.log('Fetching cart items for user ID:', req.user.id);
+    const cartItems = await prisma.cartItem.findMany({
+      where: { userId: req.user.id },
+      include: { product: true }
     });
-    return response.data;
+    console.log('Retrieved Cart Items:', cartItems);
+    res.json(cartItems);
   } catch (error) {
-    console.error('Error deleting item:', error);
-    throw error;
+    console.error('Error fetching cart:', error.message);
+    console.error('Stack Trace:', error.stack);
+    res.status(500).json({ error: 'Failed to fetch cart items' });
   }
-}
+};
 
+const addToCart = async (req, res) => {
+  const { productId, quantity } = req.body;
 
-export const clearCart = async (token) => {
+  if (!productId || quantity <= 0) {
+    return res.status(400).json({ error: 'Invalid productId or quantity' });
+  }
+
   try {
-    const response = await Axios.delete(CART_API_URL, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error clearing cart:', error);
-    throw error;
-  }
-}
+    console.log('Adding to cart:', { productId, quantity });
+    console.log('Current user ID:', req.user.id);
 
-export const checkoutCart = async (token) => {
+    const existingCartItem = await prisma.cartItem.findFirst({
+      where: { userId: req.user.id, productId }
+    });
+    console.log('Existing Cart Item:', existingCartItem);
+
+    if (existingCartItem) {
+      const updatedItem = await prisma.cartItem.update({
+        where: { id: existingCartItem.id },
+        data: { quantity: existingCartItem.quantity + quantity }
+      });
+      console.log('Updated Cart Item:', updatedItem);
+      res.json(updatedItem);
+    } else {
+      const newCartItem = await prisma.cartItem.create({
+        data: { userId: req.user.id, productId, quantity }
+      });
+      console.log('New Cart Item:', newCartItem);
+      res.json(newCartItem);
+    }
+  } catch (error) {
+    console.error('Error adding to cart:', error.message);
+    console.error('Stack Trace:', error.stack);
+    res.status(500).json({ error: 'Failed to add item to cart' });
+  }
+};
+
+const updateCartItem = async (req, res) => {
+  const { itemId } = req.params;
+  const { quantity } = req.body;
+
+  if (quantity <= 0) {
+    return res.status(400).json({ error: 'Quantity must be greater than zero' });
+  }
+
   try {
-    const response = await Axios.post(`${CART_API_URL}/checkout`, null, {
-      headers: { Authorization: `Bearer ${token}` },
+    console.log('Updating cart item:', { itemId, quantity });
+    const updatedCartItem = await prisma.cartItem.update({
+      where: { id: itemId },
+      data: { quantity }
     });
-    return response.data;
+    res.json(updatedCartItem);
   } catch (error) {
-    console.error('Error checking out cart:', error);
-    throw error;
+    console.error('Error updating cart item:', error.message);
+    console.error('Stack Trace:', error.stack);
+    res.status(500).json({ error: 'Failed to update cart item' });
   }
-}
+};
 
+const removeCartItem = async (req, res) => {
+  const { itemId } = req.params;
 
+  try {
+    console.log('Removing cart item:', { itemId });
+    await prisma.cartItem.delete({
+      where: { id: itemId }
+    });
+    res.sendStatus(204);
+  } catch (error) {
+    console.error('Error removing cart item:', error.message);
+    console.error('Stack Trace:', error.stack);
+    res.status(500).json({ error: 'Failed to remove cart item' });
+  }
+};
 
+const clearCart = async (req, res) => {
+  try {
+    console.log('Clearing cart for user ID:', req.user.id);
+    await prisma.cartItem.deleteMany({
+      where: { userId: req.user.id }
+    });
+    res.sendStatus(204);
+  } catch (error) {
+    console.error('Error clearing cart:', error.message);
+    console.error('Stack Trace:', error.stack);
+    res.status(500).json({ error: 'Failed to clear cart' });
+  }
+};
 
+const checkoutCart = async (req, res) => {
+  try {
+    console.log('Checking out cart for user ID:', req.user.id);
+    const cartItems = await prisma.cartItem.findMany({
+      where: { userId: req.user.id },
+      include: { product: true }
+    });
+
+    const order = await prisma.order.create({
+      data: {
+        userId: req.user.id,
+        orderItems: {
+          create: cartItems.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity
+          }))
+        }
+      }
+    });
+
+    await prisma.cartItem.deleteMany({
+      where: { userId: req.user.id }
+    });
+    res.json(order);
+  } catch (error) {
+    console.error('Error checking out:', error.message);
+    console.error('Stack Trace:', error.stack);
+    res.status(500).json({ error: 'Failed to checkout cart' });
+  }
+};
+
+export const fetchCartItems = async (token) => {
+  const response = await fetch('/api/cart', {
+      method: 'GET',
+      headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+      }
+  });
+  if (!response.ok) {
+      throw new Error('Failed to fetch cart items');
+  }
+  return response.json();
+};
+
+export const updateProductQuantity = async (itemId, quantity, token) => {
+  const response = await fetch(`/api/cart/${itemId}`, {
+      method: 'PUT',
+      headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ quantity })
+  });
+  if (!response.ok) {
+      throw new Error('Failed to update product quantity');
+  }
+  return response.json();
+};
+
+// Define routes
+router.get('/', authenticateToken, getCartItems);
+router.post('/', authenticateToken, addToCart);
+router.put('/:itemId', authenticateToken, updateCartItem);
+router.delete('/:itemId', authenticateToken, removeCartItem);
+router.delete('/', authenticateToken, clearCart);
+router.post('/checkout', authenticateToken, checkoutCart);
+
+export default router;
