@@ -16,6 +16,7 @@ model User {
   password  String
   role      Role       @default(USER)
   cartItems CartItem[]
+  orders    Order[] // Added orders relation
 }
 
 model Product {
@@ -28,6 +29,7 @@ model Product {
   imageUrl    String?
   cartItems   CartItem[]
   category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  OrderItem   OrderItem[]
 }
 
 model Category {
@@ -43,6 +45,22 @@ model CartItem {
   quantity  Int
   product   Product @relation(fields: [productId], references: [id])
   user      User    @relation(fields: [userId], references: [id])
+}
+
+model Order {
+  id         Int         @id @default(autoincrement())
+  userId     Int
+  user       User        @relation(fields: [userId], references: [id])
+  orderItems OrderItem[] 
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  product   Product @relation(fields: [productId], references: [id])
+  order     Order   @relation(fields: [orderId], references: [id])
 }
 
 enum Role {

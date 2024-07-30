@@ -6,7 +6,7 @@ dotenv.config();
 const prisma = new PrismaClient();
 const router = express.Router();
 
-// Route handler for getting all products
+// Route handlers
 const getAllProducts = async (req, res) => {
     try {
         const products = await prisma.product.findMany();
@@ -17,7 +17,6 @@ const getAllProducts = async (req, res) => {
     }
 };
 
-// Route handler for getting a product by ID
 const getProductById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -35,20 +34,16 @@ const getProductById = async (req, res) => {
     }
 };
 
-// Route handler for creating a new product
 const createProduct = async (req, res) => {
     const { name, releaseYear, price, quantity, categoryId, imageUrl } = req.body;
-
     try {
         if (!categoryId) {
             throw new Error("Category ID is required");
         }
-
         const parsedPrice = parseFloat(price.replace('$', ''));
         if (isNaN(parsedPrice)) {
             throw new Error("Valid price is required");
         }
-
         const newProduct = await prisma.product.create({
             data: {
                 name,
@@ -57,9 +52,7 @@ const createProduct = async (req, res) => {
                 quantity: parseInt(quantity, 10),
                 imageUrl,
                 category: {
-                    connect: {
-                        id: parseInt(categoryId, 10),
-                    },
+                    connect: { id: parseInt(categoryId, 10) },
                 },
             },
         });
@@ -70,11 +63,9 @@ const createProduct = async (req, res) => {
     }
 };
 
-// Route handler for updating a product
 const updateProduct = async (req, res) => {
     const { id } = req.params;
     const { name, releaseYear, price, quantity, categoryId, imageUrl } = req.body;
-
     try {
         const existingProduct = await prisma.product.findUnique({
             where: { id: Number(id) }
@@ -82,7 +73,6 @@ const updateProduct = async (req, res) => {
         if (!existingProduct) {
             return res.status(404).json({ error: 'Product not found' });
         }
-
         const updatedData = {
             name: name ?? existingProduct.name,
             releaseYear: releaseYear ?? existingProduct.releaseYear,
@@ -91,14 +81,12 @@ const updateProduct = async (req, res) => {
             imageUrl: imageUrl ?? existingProduct.imageUrl,
             category: categoryId ? { connect: { id: parseInt(categoryId) } } : undefined
         };
-
         if (isNaN(updatedData.price) || updatedData.price <= 0) {
             return res.status(400).json({ error: 'Invalid price' });
         }
         if (isNaN(updatedData.quantity) || updatedData.quantity < 0) {
             return res.status(400).json({ error: 'Invalid quantity' });
         }
-
         const updatedProduct = await prisma.product.update({
             where: { id: Number(id) },
             data: updatedData
@@ -110,14 +98,12 @@ const updateProduct = async (req, res) => {
     }
 };
 
-// Route handler for searching products
 const searchProducts = async (req, res) => {
     const { q } = req.query;
     try {
         if (!q) {
             return res.status(400).json({ error: 'Search term is required' });
         }
-
         const products = await prisma.product.findMany({
             where: {
                 name: {
@@ -133,7 +119,6 @@ const searchProducts = async (req, res) => {
     }
 };
 
-// Route handler for deleting a product
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
     try {
@@ -143,11 +128,9 @@ const deleteProduct = async (req, res) => {
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
         }
-
         await prisma.cartItem.deleteMany({
             where: { productId: Number(id) }
         });
-
         await prisma.product.delete({
             where: { id: Number(id) }
         });
