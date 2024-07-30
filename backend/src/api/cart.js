@@ -1,5 +1,3 @@
-// backend/src/api/cart.js
-
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
@@ -23,7 +21,6 @@ const authenticateToken = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Error verifying token:', error.message);
-    console.error('Stack Trace:', error.stack);
     res.status(403).json({ error: 'Token verification failed' });
   }
 };
@@ -31,16 +28,13 @@ const authenticateToken = async (req, res, next) => {
 // Route handlers
 const getCartItems = async (req, res) => {
   try {
-    console.log('Fetching cart items for user ID:', req.user.id);
     const cartItems = await prisma.cartItem.findMany({
       where: { userId: req.user.id },
       include: { product: true }
     });
-    console.log('Retrieved Cart Items:', cartItems);
     res.json(cartItems);
   } catch (error) {
     console.error('Error fetching cart:', error.message);
-    console.error('Stack Trace:', error.stack);
     res.status(500).json({ error: 'Failed to fetch cart items' });
   }
 };
@@ -52,46 +46,44 @@ const addToCart = async (req, res) => {
   }
 
   try {
-    console.log('Adding to cart:', { productId, quantity });
-    console.log('Current user ID:', req.user.id);
-
     const existingCartItem = await prisma.cartItem.findFirst({
       where: { userId: req.user.id, productId }
     });
-    console.log('Existing Cart Item:', existingCartItem);
 
     if (existingCartItem) {
       const updatedItem = await prisma.cartItem.update({
         where: { id: existingCartItem.id },
         data: { quantity: existingCartItem.quantity + quantity }
       });
-      console.log('Updated Cart Item:', updatedItem);
       res.json(updatedItem);
     } else {
       const newCartItem = await prisma.cartItem.create({
         data: { userId: req.user.id, productId, quantity }
       });
-      console.log('New Cart Item:', newCartItem);
       res.json(newCartItem);
     }
   } catch (error) {
     console.error('Error adding to cart:', error.message);
-    console.error('Stack Trace:', error.stack);
     res.status(500).json({ error: 'Failed to add item to cart' });
   }
 };
 
 const updateCartItem = async (req, res) => {
-  const itemId = parseInt(req.params.itemId, 10); // Ensure itemId is an integer
+  const itemId = parseInt(req.params.itemId, 10);
   const { quantity } = req.body;
-  if (!Number.isInteger(itemId) || itemId <= 0) {
-    return res.status(400).json({ error: 'Invalid item ID' });
+  if (isNaN(itemId) || itemId <= 0 || quantity <= 0) {
+    return res.status(400).json({ error: 'Invalid item ID or quantity' });
   }
-  if (quantity <= 0) {
-    return res.status(400).json({ error: 'Quantity must be greater than zero' });
-  }
+
   try {
-    console.log('Updating cart item:', { itemId, quantity });
+    const cartItem = await prisma.cartItem.findUnique({
+      where: { id: itemId }
+    });
+
+    if (!cartItem || cartItem.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized to update this cart item' });
+    }
+
     const updatedCartItem = await prisma.cartItem.update({
       where: { id: itemId },
       data: { quantity }
@@ -99,61 +91,37 @@ const updateCartItem = async (req, res) => {
     res.json(updatedCartItem);
   } catch (error) {
     console.error('Error updating cart item:', error.message);
-    console.error('Stack Trace:', error.stack);
     res.status(500).json({ error: 'Failed to update cart item' });
   }
 };
 
 const removeCartItem = async (req, res) => {
-  console.log('Request Parameters:', req.params);
-  const { id } = req.params;
-  const numericId = parseInt(id, 10);
-  if (isNaN(numericId)) {
-      return res.status(400).json({ error: 'Invalid ID format' });
+  const itemId = parseInt(req.params.itemId, 10);
+  if (isNaN(itemId)) {
+    return res.status(400).json({ error: 'Invalid ID format' });
   }
+
   try {
-      await prisma.cartItem.delete({
-          where: {
-              id: numericId,
-          },
-      });
-      res.status(200).json({ message: 'Item removed from cart' });
+    await prisma.cartItem.delete({ where: { id: itemId } });
+    res.sendStatus(204);
   } catch (error) {
-      console.error('Error removing item from cart:', error);
-      res.status(500).json({ error: 'Failed to remove item from cart' });
+    console.error('Error removing cart item:', error.message);
+    res.status(500).json({ error: 'Failed to remove cart item' });
   }
 };
 
-
 const clearCart = async (req, res) => {
-  const { itemId } = req.params;
-  const numberItemId = parseInt(itemId, 10);
-  if (isNaN(numberItemId) || numberItemId <= 0) {
-    return res.status(400).json({ error: 'Invalid item ID' });
-  }
   try {
-    console.log('Clearing cart for user ID:', req.user.id);
-    await prisma.cartItem.deleteMany({
-      where: { userId: req.user.id }
-    });
+    await prisma.cartItem.deleteMany({ where: { userId: req.user.id } });
     res.sendStatus(204);
   } catch (error) {
     console.error('Error clearing cart:', error.message);
-    console.error('Stack Trace:', error.stack);
     res.status(500).json({ error: 'Failed to clear cart' });
   }
 };
 
 const checkoutCart = async (req, res) => {
-  const { itemId } = req.params;
-  const numberItemId = parseInt(itemId, 10);
-  if (isNaN(numberItemId) || numberItemId <= 0) {
-    return res.status(400).json({
-      error: 'Invalid item'
-    });
-  }
   try {
-    console.log('Checking out cart for user ID:', req.user.id);
     const cartItems = await prisma.cartItem.findMany({
       where: { userId: req.user.id },
       include: { product: true }
@@ -171,13 +139,10 @@ const checkoutCart = async (req, res) => {
       }
     });
 
-    await prisma.cartItem.deleteMany({
-      where: { userId: req.user.id }
-    });
+    await prisma.cartItem.deleteMany({ where: { userId: req.user.id } });
     res.json(order);
   } catch (error) {
     console.error('Error checking out:', error.message);
-    console.error('Stack Trace:', error.stack);
     res.status(500).json({ error: 'Failed to checkout cart' });
   }
 };

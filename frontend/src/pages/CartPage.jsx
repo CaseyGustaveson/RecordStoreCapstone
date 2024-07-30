@@ -64,35 +64,24 @@ const CartPage = () => {
 
     const handleRemoveFromCart = async (itemId) => {
         const token = localStorage.getItem('token');
-      
         try {
-          // Ensure itemId is a number
-          const numericItemId = parseInt(itemId, 10);
-      
-          await axios.delete(`/api/cart/${numericItemId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
+            const numericItemId = parseInt(itemId, 10);
+            if (isNaN(numericItemId)) {
+                throw new Error('Invalid item ID');
             }
-          });
-      
-          fetchCartItems(token); // Refresh cart items
+            await axios.delete(`${API_URL}/${numericItemId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            fetchCartItems(token); // Refresh cart items
         } catch (error) {
-          console.error('Error removing item from cart:', error);
-          setAlertMessage('Error removing item from cart. Please try again.');
-          setOpenAlert(true); // Show alert for error
+            console.error('Error removing item from cart:', error);
+            setAlertMessage('Error removing item from cart. Please try again.');
+            setOpenAlert(true); // Show alert for error
         }
-      };
-      
-      
-
-    if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <CircularProgress />
-            </Box>
-        );
-    }
+    };
 
     return (
         <Box padding={2}>

@@ -101,12 +101,11 @@ const login = async (req, res) => {
         const token = jwt.sign({ userId: user.id, role: user.role }, process.env.ACCESS_TOKEN_SECRET, {
             expiresIn: '1h',
         });
-        const refreshToken = jwt.sign({ userId: user.id, role: user.role }, process.env.REFRESH_TOKEN_SECRET, {
-            expiresIn: '1d',
-        })
+        const accessToken = jwt.sign({ userId: user.id, role: user.role }, process.env.ACCESS_TOKEN_SECRET, {
+            expiresIn: '1h',
+        });
 
-        await saveRefreshToken(user.id, refreshToken);
-        res.status(200).json({refreshToken, token, role: user.role });
+        res.status(200).json({ token, role: user.role });
     } catch (error) {
         console.error('Error during login:', error);
         res.status(500).json({ error: 'Login failed' });
