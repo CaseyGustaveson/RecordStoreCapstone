@@ -47,11 +47,9 @@ const getCartItems = async (req, res) => {
 
 const addToCart = async (req, res) => {
   const { productId, quantity } = req.body;
-
   if (!productId || quantity <= 0) {
     return res.status(400).json({ error: 'Invalid productId or quantity' });
   }
-
   try {
     console.log('Adding to cart:', { productId, quantity });
     console.log('Current user ID:', req.user.id);
@@ -113,16 +111,24 @@ const updateCartItem = async (req, res) => {
 };
 
 const removeCartItem = async (req, res) => {
+  console.log('Received request to remove cart item:', req.params);
   const { itemId } = req.params;
   const numericItemId = parseInt(itemId, 10);
+
   if (isNaN(numericItemId)) {
     return res.status(400).json({ error: 'Invalid ID format' });
   }
   try {
-    console.log('Removing cart item:', { itemId: numericItemId });
+    const cartItem = await prisma.cartItem.findUnique({
+      where: { id: numericItemId }
+    });
+    if (!cartItem) {
+      return res.status(404).json({ error: 'Cart item not found' });
+    }
     await prisma.cartItem.delete({
       where: { id: numericItemId }
     });
+
     res.sendStatus(204);
   } catch (error) {
     console.error('Error removing cart item:', error.message);
@@ -130,6 +136,7 @@ const removeCartItem = async (req, res) => {
     res.status(500).json({ error: 'Failed to remove cart item' });
   }
 };
+
 
 const clearCart = async (req, res) => {
   try {
