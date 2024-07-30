@@ -28,7 +28,6 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// Route handlers
 const getCartItems = async (req, res) => {
   try {
     console.log('Fetching cart items for user ID:', req.user.id);
