@@ -47,7 +47,6 @@ const getCartItems = async (req, res) => {
 
 const addToCart = async (req, res) => {
   const { productId, quantity } = req.body;
-
   if (!productId || quantity <= 0) {
     return res.status(400).json({ error: 'Invalid productId or quantity' });
   }
@@ -83,13 +82,14 @@ const addToCart = async (req, res) => {
 };
 
 const updateCartItem = async (req, res) => {
-  const { itemId } = req.params;
+  const itemId = parseInt(req.params.itemId, 10); // Ensure itemId is an integer
   const { quantity } = req.body;
-
+  if (!Number.isInteger(itemId) || itemId <= 0) {
+    return res.status(400).json({ error: 'Invalid item ID' });
+  }
   if (quantity <= 0) {
     return res.status(400).json({ error: 'Quantity must be greater than zero' });
   }
-
   try {
     console.log('Updating cart item:', { itemId, quantity });
     const updatedCartItem = await prisma.cartItem.update({
@@ -105,22 +105,32 @@ const updateCartItem = async (req, res) => {
 };
 
 const removeCartItem = async (req, res) => {
-  const { itemId } = req.params;
-
+  console.log('Request Parameters:', req.params);
+  const { id } = req.params;
+  const numericId = parseInt(id, 10);
+  if (isNaN(numericId)) {
+      return res.status(400).json({ error: 'Invalid ID format' });
+  }
   try {
-    console.log('Removing cart item:', { itemId });
-    await prisma.cartItem.delete({
-      where: { id: itemId }
-    });
-    res.sendStatus(204);
+      await prisma.cartItem.delete({
+          where: {
+              id: numericId,
+          },
+      });
+      res.status(200).json({ message: 'Item removed from cart' });
   } catch (error) {
-    console.error('Error removing cart item:', error.message);
-    console.error('Stack Trace:', error.stack);
-    res.status(500).json({ error: 'Failed to remove cart item' });
+      console.error('Error removing item from cart:', error);
+      res.status(500).json({ error: 'Failed to remove item from cart' });
   }
 };
 
+
 const clearCart = async (req, res) => {
+  const { itemId } = req.params;
+  const numberItemId = parseInt(itemId, 10);
+  if (isNaN(numberItemId) || numberItemId <= 0) {
+    return res.status(400).json({ error: 'Invalid item ID' });
+  }
   try {
     console.log('Clearing cart for user ID:', req.user.id);
     await prisma.cartItem.deleteMany({
@@ -135,6 +145,13 @@ const clearCart = async (req, res) => {
 };
 
 const checkoutCart = async (req, res) => {
+  const { itemId } = req.params;
+  const numberItemId = parseInt(itemId, 10);
+  if (isNaN(numberItemId) || numberItemId <= 0) {
+    return res.status(400).json({
+      error: 'Invalid item'
+    });
+  }
   try {
     console.log('Checking out cart for user ID:', req.user.id);
     const cartItems = await prisma.cartItem.findMany({

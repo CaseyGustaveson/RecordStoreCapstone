@@ -92,6 +92,14 @@ const updateCartItem = async (req, res) => {
 
   try {
     console.log('Updating cart item:', { itemId, quantity });
+    const cartItem = await prisma.cartItem.findUnique({
+      where: { id: itemId }
+    });
+
+    if (!cartItem || cartItem.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized to update this cart item' });
+    }
+
     const updatedCartItem = await prisma.cartItem.update({
       where: { id: itemId },
       data: { quantity }
@@ -106,11 +114,14 @@ const updateCartItem = async (req, res) => {
 
 const removeCartItem = async (req, res) => {
   const { itemId } = req.params;
-
+  const numericItemId = parseInt(itemId, 10);
+  if (isNaN(numericItemId)) {
+    return res.status(400).json({ error: 'Invalid ID format' });
+  }
   try {
-    console.log('Removing cart item:', { itemId });
+    console.log('Removing cart item:', { itemId: numericItemId });
     await prisma.cartItem.delete({
-      where: { id: itemId }
+      where: { id: numericItemId }
     });
     res.sendStatus(204);
   } catch (error) {
