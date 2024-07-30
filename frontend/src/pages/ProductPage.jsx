@@ -1,5 +1,3 @@
-// frontend/src/pages/ProductPage.jsx
-
 import React, { useEffect, useState } from 'react';
 import {
   Box,
@@ -22,7 +20,7 @@ const Products = () => {
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const token = localStorage.getItem("token");
+  const [token, setToken] = useState(localStorage.getItem("token"));
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -46,8 +44,9 @@ const Products = () => {
 
   const addToCart = async (productId, quantity) => {
     try {
-      const response = await axios.post(CART_API_URL, 
-        { productId, quantity }, 
+      const response = await axios.post(
+        CART_API_URL,
+        { productId, quantity },
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -59,12 +58,48 @@ const Products = () => {
       setSuccess('Item added to cart successfully!');
     } catch (error) {
       console.error('Error adding to cart:', error.message);
-      setError('Failed to add item to cart');
+      if (error.response?.status === 403) {
+        // Handle token expiration or invalid token
+        setError('Session expired. Please log in again.');
+        // Optionally redirect to login page or prompt user to log in
+        localStorage.removeItem("token");
+        setToken(null);
+      } else {
+        setError('Failed to add item to cart');
+      }
     }
   };
 
   const handleAddToCart = (productId) => {
+    if (!token) {
+      setError('Please log in to add items to the cart.');
+      return;
+    }
     addToCart(productId, 1);
+  };
+
+  const handleRemoveFromCart = async (itemId) => {
+    try {
+      await axios.delete(`${CART_API_URL}/${itemId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log('Item removed from cart');
+      setSuccess('Item removed from cart successfully!');
+    } catch (error) {
+      if (error.response?.status === 404) {
+        setError('Item not found in cart.');
+      } else if (error.response?.status === 403) {
+        setError('Session expired. Please log in again.');
+        localStorage.removeItem("token");
+        setToken(null);
+      } else {
+        setError('Failed to remove item from cart');
+      }
+      console.error('Error removing item from cart:', error.message);
+    }
   };
 
   const getCategoryName = (categoryId) => {
@@ -127,9 +162,16 @@ const Products = () => {
                   <Button
                     variant="contained"
                     onClick={() => handleAddToCart(product.id)}
-                    sx={{ width: "80%" }}
+                    sx={{ width: "80%", marginBottom: 1 }}
                   >
                     Add to Cart
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => handleRemoveFromCart(product.id)}
+                    sx={{ width: "80%" }}
+                  >
+                    Remove from Cart
                   </Button>
                 </Box>
               </Box>
