@@ -16,7 +16,7 @@ model User {
   password  String
   role      Role       @default(USER)
   cartItems CartItem[]
-  orders    Order[] // Added orders relation
+  orders    Order[] 
 }
 
 model Product {

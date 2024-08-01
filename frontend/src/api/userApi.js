@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-// Configure the axios instance
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL, // Base URL for your backend
+    baseURL: import.meta.env.VITE_API_URL, 
 });
 
-// Fetch user profile
+
 export const getUserProfile = async (token) => {
     try {
         const response = await api.get('/profile', {
@@ -17,7 +17,18 @@ export const getUserProfile = async (token) => {
     }
 };
 
-// Fetch all users (admin only)
+export const getPastOrders = async (token) => {
+    try {
+        const response = await api.get('/profile/orders', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+};
+
+//Admin only)
 export const getAllUsers = async (token) => {
     try {
         const response = await api.get('/user', {

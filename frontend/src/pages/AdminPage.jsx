@@ -36,7 +36,7 @@ const AdminPage = () => {
         <Box padding={3}>
             <Typography variant="h4" align="center" gutterBottom>Admin Dashboard</Typography>
             <Stack direction="row" justifyContent="center" spacing={2} flexWrap="wrap">
-                {/* Admin-specific buttons */}
+
                 <Button variant="contained" onClick={() => handleNavigation('/admin/products')}>Products</Button>
                 <Button variant="contained" onClick={() => handleNavigation('/admin/users/')}>Users</Button>
                 <Button variant="contained" onClick={() => handleNavigation('/admin/categories')}>Categories</Button>
