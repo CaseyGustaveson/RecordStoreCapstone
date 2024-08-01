@@ -78,29 +78,7 @@ const Products = () => {
     addToCart(productId, 1);
   };
 
-  const handleRemoveFromCart = async (itemId) => {
-    try {
-      await axios.delete(`${CART_API_URL}/${itemId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      console.log('Item removed from cart');
-      setSuccess('Item removed from cart successfully!');
-    } catch (error) {
-      if (error.response?.status === 404) {
-        setError('Item not found in cart.');
-      } else if (error.response?.status === 403) {
-        setError('Session expired. Please log in again.');
-        localStorage.removeItem("token");
-        setToken(null);
-      } else {
-        setError('Failed to remove item from cart');
-      }
-      console.error('Error removing item from cart:', error.message);
-    }
-  };
+  
 
   const getCategoryName = (categoryId) => {
     const category = categories.find((cat) => cat.id === categoryId);

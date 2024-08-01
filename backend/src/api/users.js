@@ -52,6 +52,30 @@ const createUser = async (req, res) => {
     }
 }
 
+const editUser = async (req, res) => {
+    const { id } = req.params;
+    const { name, email, password } = req.body;
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: Number(id) }
+        });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const updatedUser = await prisma.user.update({
+            where: { id: Number(id) },
+            data: { name, email, password }
+        });
+        res.json(updatedUser);
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ error: 'Failed to update user' });
+    }
+}
+
+
+
 const deleteUsers = async (req, res) => {
     const { id } = req.params;
     try {
@@ -65,9 +89,23 @@ const deleteUsers = async (req, res) => {
     }
 }
 
+const pastOrders = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const orders = await prisma.order.findMany({
+            where: { userId: Number(id) }
+        });
+        res.json(orders);
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+}
+
 router.get('/', getAllUsers);
 router.get('/:id', getUserById);
 router.post('/', createUser);
 router.delete('/:id', deleteUsers);
+router.get('/:id/orders', pastOrders);
 
 export default router;

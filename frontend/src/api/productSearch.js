@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Use environment variable or default to localhost
+
 const API_URL = 'http://localhost:3001/api/products';
 
 // Fetch all products

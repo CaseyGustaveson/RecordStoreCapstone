@@ -1,47 +1,151 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Typography, Button, Grid, CircularProgress } from '@mui/material';
-import { getUserProfile } from '../api/userApi'; 
+import React, { useState, useEffect } from 'react';
+import { Container, Typography, Button, CircularProgress, TextField, Snackbar, Alert } from '@mui/material';
+import { getUserProfile, updateUserProfile } from '../api/profileApi'; 
+import { useNavigate } from 'react-router-dom';
 
 const ProfilePage = () => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [profile, setProfile] = useState({ firstname: '', lastname: '', email: '', password: '' });
+    const [isEditing, setIsEditing] = useState({ firstname: false, lastname: false, email: false, password: false });
+    const [message, setMessage] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState('success');
+    const [showSnackbar, setShowSnackbar] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const token = localStorage.getItem('token');
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchUserProfile = async () => {
+        const fetchProfile = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const data = await getUserProfile(token); 
-                setUser(data);
-                setLoading(false);
-            } catch (err) {
-                setError(err);
-                setLoading(false);
+                const data = await getUserProfile(token);
+                setProfile(data);
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+                setMessage('Error fetching profile');
+                setAlertSeverity('error');
+                setShowSnackbar(true);
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        fetchUserProfile();
-    }, []);
+        fetchProfile();
+    }, [token]);
 
-    if (loading) return <CircularProgress />;
-    if (error) return <Typography color="error">Error fetching profile: {error.message}</Typography>;
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setProfile((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleEditToggle = (field) => {
+        setIsEditing((prev) => ({ ...prev, [field]: !prev[field] }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const updatedProfile = await updateUserProfile(token, profile);
+            setProfile(updatedProfile);
+            setMessage('Profile updated successfully');
+            setAlertSeverity('success');
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            setMessage('Error updating profile');
+            setAlertSeverity('error');
+        } finally {
+            setShowSnackbar(true);
+        }
+    };
+
+    const handleSnackbarClose = () => {
+        setShowSnackbar(false);
+    };
+
+    if (isLoading) {
+        return (
+            <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <CircularProgress />
+            </div>
+        );
+    }
 
     return (
-        <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white' }}>
-            <Container style={{ textAlign: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', padding: '20px', borderRadius: '10px' }}>
-                <Typography variant="h2" gutterBottom>Welcome, {user.email}!</Typography>
-                <Typography variant="h6" paragraph>Manage your account details here.</Typography>
-                <Button variant="contained" color="primary" size="large" style={{ marginTop: '20px' }} href="/profile/edit">Edit Profile</Button>
-                <Grid container spacing={2} sx={{ mt: 4 }}>
-                    <Grid item xs={12} sm={6}>
-                        <Typography variant="body1">Email: {user.email}</Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                        {/* Add other user details here */}
-                    </Grid>
-                </Grid>
-            </Container>
-        </div>
+        <Container>
+            <Typography variant="h4" gutterBottom>
+                Profile
+            </Typography>
+            <form onSubmit={handleSubmit}>
+                <div>
+                    <TextField
+                        label="First Name"
+                        name="firstname"
+                        value={profile.firstname || ''}
+                        onChange={handleInputChange}
+                        disabled={!isEditing.firstname}
+                        fullWidth
+                        margin="normal"
+                    />
+                    <Button onClick={() => handleEditToggle('firstname')}>
+                        {isEditing.firstname ? 'Save' : 'Edit'}
+                    </Button>
+                </div>
+                <div>
+                    <TextField
+                        label="Last Name"
+                        name="lastname"
+                        value={profile.lastname || ''}
+                        onChange={handleInputChange}
+                        disabled={!isEditing.lastname}
+                        fullWidth
+                        margin="normal"
+                    />
+                    <Button onClick={() => handleEditToggle('lastname')}>
+                        {isEditing.lastname ? 'Save' : 'Edit'}
+                    </Button>
+                </div>
+                <div>
+                    <TextField
+                        label="Email"
+                        name="email"
+                        type="email"
+                        value={profile.email || ''}
+                        onChange={handleInputChange}
+                        disabled={!isEditing.email}
+                        fullWidth
+                        margin="normal"
+                    />
+                    <Button onClick={() => handleEditToggle('email')}>
+                        {isEditing.email ? 'Save' : 'Edit'}
+                    </Button>
+                </div>
+                <div>
+                    <TextField
+                        label="Password"
+                        name="password"
+                        type="password"
+                        value={profile.password || ''}
+                        onChange={handleInputChange}
+                        disabled={!isEditing.password}
+                        fullWidth
+                        margin="normal"
+                    />
+                    <Button onClick={() => handleEditToggle('password')}>
+                        {isEditing.password ? 'Save' : 'Edit'}
+                    </Button>
+                </div>
+                <Button type="submit" variant="contained" color="primary">
+                    Update Profile
+                </Button>
+            </form>
+            <Snackbar
+                open={showSnackbar}
+                autoHideDuration={6000}
+                onClose={handleSnackbarClose}
+            >
+                <Alert onClose={handleSnackbarClose} severity={alertSeverity}>
+                    {message}
+                </Alert>
+            </Snackbar>
+        </Container>
     );
 };
 

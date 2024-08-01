@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
 
 dotenv.config();
 const prisma = new PrismaClient();
@@ -30,12 +31,15 @@ const authenticateToken = async (req, res, next) => {
     }
 };
 
-// Controller functions
+// Get Profile
 const getProfile = async (req, res) => {
     try {
         const user = await prisma.user.findUnique({
-            where: { id: req.user.id }
+            where: { id: req.user.id },
         });
+        if (!user) {
+            return res.sendStatus(404);
+        }
         res.json(user);
     } catch (error) {
         console.error('Error fetching user profile:', error);
@@ -43,26 +47,35 @@ const getProfile = async (req, res) => {
     }
 };
 
+// Update Profile
 const updateProfile = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { firstname, lastname, email, password } = req.body;
+
+    // Log only non-sensitive data
+    console.log('Updating profile for user:', req.user.id);
+
+    const updateData = {};
+    if (firstname) updateData.firstname = firstname;
+    if (lastname) updateData.lastname = lastname;
+    if (email) updateData.email = email;
+    if (password) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        updateData.password = hashedPassword;
+    }
 
     try {
         const updatedUser = await prisma.user.update({
             where: { id: req.user.id },
-            data: {
-                name,
-                email,
-                password // Remember to hash passwords before saving
-            }
+            data: updateData
         });
         res.json(updatedUser);
     } catch (error) {
         console.error('Error updating user profile:', error);
-        res.sendStatus(500);
+        res.status(500).json({ error: error.message });
     }
 };
 
-// Define routes directly in the file
+// Define routes
 router.get('/profile', authenticateToken, getProfile);
 router.put('/profile', authenticateToken, updateProfile);
 
