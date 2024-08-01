@@ -7,6 +7,7 @@ import productRoutes from './src/api/products.js';
 import profileRoutes from './src/api/profile.js';
 import userRoutes from './src/api/users.js';
 import cartRoutes from './src/api/cart.js';
+import checkoutRoutes from './src/api/checkout.js';
 
 
 
@@ -25,6 +26,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/checkout', checkoutRoutes);
 
 
 

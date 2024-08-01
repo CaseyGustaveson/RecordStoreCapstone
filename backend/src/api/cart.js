@@ -122,27 +122,34 @@ const clearCart = async (req, res) => {
 
 const checkoutCart = async (req, res) => {
   try {
+    console.log('Checking out for user:', req.user.id);
     const cartItems = await prisma.cartItem.findMany({
       where: { userId: req.user.id },
       include: { product: true }
     });
 
-    const order = await prisma.order.create({
-      data: {
-        userId: req.user.id,
-        orderItems: {
-          create: cartItems.map(item => ({
-            productId: item.productId,
-            quantity: item.quantity
-          }))
-        }
+    let totalQuantity = 0;
+    for (const item of cartItems) {
+      console.log('Checking out item:', item);
+      totalQuantity += item.quantity;
+      const product = await prisma.product.findUnique({
+        where: { id: item.productId }
+      });
+
+      if (!product || product.quantity < item.quantity) {
+        return res.status(400).json({ error: `Insufficient stock for product ${item.productId}` });
       }
-    });
+
+      await prisma.product.update({
+        where: { id: product.id },
+        data: { quantity: product.quantity - item.quantity }
+      });
+    }
 
     await prisma.cartItem.deleteMany({ where: { userId: req.user.id } });
-    res.json(order);
+    res.status(200).json({ message: 'Checkout successful' });
   } catch (error) {
-    console.error('Error checking out:', error.message);
+    console.error('Error checking out cart:', error.message);
     res.status(500).json({ error: 'Failed to checkout cart' });
   }
 };
