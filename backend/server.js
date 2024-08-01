@@ -10,6 +10,7 @@ import cartRoutes from './src/api/cart.js';
 
 
 
+
 dotenv.config();
 
 const app = express();
@@ -25,6 +26,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/cart', cartRoutes);
+
 
 
 

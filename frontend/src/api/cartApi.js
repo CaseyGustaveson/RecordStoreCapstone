@@ -4,10 +4,13 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import axios from 'axios';
 
 dotenv.config();
 const prisma = new PrismaClient();
 const router = express.Router();
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Authentication middleware
 const authenticateToken = async (req, res, next) => {
@@ -76,6 +79,17 @@ const addToCart = async (req, res) => {
     console.error('Error adding to cart:', error.message);
     console.error('Stack Trace:', error.stack);
     res.status(500).json({ error: 'Failed to add item to cart' });
+  }
+};
+
+export const checkout = async (token, cartItems) => {
+  try {
+      const response = await axios.post(`${API_URL}/checkout`, { items: cartItems }, {
+          headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+  } catch (error) {
+      throw new Error(error.response?.data?.message || 'Error during checkout');
   }
 };
 

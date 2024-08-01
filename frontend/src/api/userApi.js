@@ -5,7 +5,6 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL, // Base URL for your backend
 });
 
-// Fetch user profile
 export const getUserProfile = async (token) => {
     try {
         const response = await api.get('/profile', {
@@ -17,7 +16,17 @@ export const getUserProfile = async (token) => {
     }
 };
 
-// Fetch all users (admin only)
+export const updateUserProfile = async (token, { name, email, password }) => {
+    try {
+        const response = await axios.put(`${API_URL}/profile`, { name, email, password }, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Error updating user profile');
+    }
+};
+
 export const getAllUsers = async (token) => {
     try {
         const response = await api.get('/user', {
