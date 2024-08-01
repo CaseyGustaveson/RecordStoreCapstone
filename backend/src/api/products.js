@@ -49,7 +49,7 @@ const createProduct = async (req, res) => {
                 name,
                 releaseYear,
                 price: parsedPrice,
-                quantity: parseInt(quantity, 10),
+                quantity: quantity ? parseInt(quantity, 10) : 1, // Default to 1 if quantity is not provided
                 imageUrl,
                 category: {
                     connect: { id: parseInt(categoryId, 10) },
@@ -77,15 +77,16 @@ const updateProduct = async (req, res) => {
             name: name ?? existingProduct.name,
             releaseYear: releaseYear ?? existingProduct.releaseYear,
             price: price !== undefined ? parseFloat(price.replace(/[^0-9.]/g, '')) : existingProduct.price,
-            quantity: quantity !== undefined ? parseInt(quantity, 10) : existingProduct.quantity,
+            quantity: quantity !== undefined ? parseInt(quantity, 10) : existingProduct.quantity, // Default to existing quantity if not provided
             imageUrl: imageUrl ?? existingProduct.imageUrl,
             category: categoryId ? { connect: { id: parseInt(categoryId) } } : undefined
         };
+        // Ensure quantity defaults to 1 if invalid
+        if (isNaN(updatedData.quantity) || updatedData.quantity <= 0) {
+            updatedData.quantity = 1;
+        }
         if (isNaN(updatedData.price) || updatedData.price <= 0) {
             return res.status(400).json({ error: 'Invalid price' });
-        }
-        if (isNaN(updatedData.quantity) || updatedData.quantity < 0) {
-            return res.status(400).json({ error: 'Invalid quantity' });
         }
         const updatedProduct = await prisma.product.update({
             where: { id: Number(id) },

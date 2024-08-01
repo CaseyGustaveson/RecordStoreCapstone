@@ -166,13 +166,6 @@ const Products = () => {
                   >
                     Add to Cart
                   </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleRemoveFromCart(product.id)}
-                    sx={{ width: "80%" }}
-                  >
-                    Remove from Cart
-                  </Button>
                 </Box>
               </Box>
             </Grid>

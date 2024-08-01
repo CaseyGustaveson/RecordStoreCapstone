@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Grid, TextField, Button, Snackbar, Alert, CircularProgress } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL; // Ensure this matches your backend API
+const API_URL = import.meta.env.VITE_API_URL;
 const CART_API_URL = `${API_URL}/api/cart`;
 
 const CartPage = () => {
@@ -10,10 +11,17 @@ const CartPage = () => {
     const [loading, setLoading] = useState(true);
     const [openAlert, setOpenAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        fetchCartItems(token);
+        if (token) {
+            fetchCartItems(token);
+        } else {
+            setAlertMessage('No authentication token found.');
+            setOpenAlert(true);
+            setLoading(false);
+        }
     }, []);
 
     const fetchCartItems = async (token) => {
@@ -34,26 +42,50 @@ const CartPage = () => {
         }
     };
 
-    const updateProductQuantity = async (productId, newQuantity) => {
+    const updateQuantity = async (itemId, newQuantity) => {
         const token = localStorage.getItem('token');
         try {
-            await axios.put(`${CART_API_URL}/${productId}`, { quantity: newQuantity }, {
+            if (newQuantity <= 0) {
+                await axios.delete(`${CART_API_URL}/${itemId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                setCartItems(cartItems.filter(item => item.id !== itemId));
+            } else {
+                await axios.put(`${CART_API_URL}/${itemId}`, { quantity: newQuantity }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                setCartItems(cartItems.map(item =>
+                    item.id === itemId ? { ...item, quantity: newQuantity } : item
+                ));
+            }
+        } catch (error) {
+            setAlertMessage('Failed to update item quantity. Please try again later.');
+            setOpenAlert(true);
+        }
+    };
+
+    const handleCheckout = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await axios.post(`${API_URL}/api/checkout`, { cartItems }, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
-            fetchCartItems(token); // Refresh cart items
-        } catch (error) {
-            setAlertMessage('Error updating product quantity. Please try again.');
+            navigate('/checkout');
+            setAlertMessage(response.data.message);
             setOpenAlert(true);
-        }
-    };
-
-    const handleQuantityChange = (productId, event) => {
-        const newQuantity = parseInt(event.target.value, 10);
-        if (!isNaN(newQuantity) && newQuantity >= 0) {
-            updateProductQuantity(productId, newQuantity); 
+            setCartItems([]);
+        } catch (error) {
+            setAlertMessage('Failed to checkout. Please try again later.');
+            setOpenAlert(true);
         }
     };
 
@@ -61,20 +93,15 @@ const CartPage = () => {
         setOpenAlert(false);
     };
 
-    const handleRemoveFromCart = async (itemId) => {
-        const token = localStorage.getItem('token');
-        try {
-            await axios.delete(`${CART_API_URL}/${itemId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            fetchCartItems(token); // Refresh cart items
-        } catch (error) {
-            setAlertMessage('Error removing item from cart. Please try again.');
-            setOpenAlert(true);
+    const handleQuantityChange = (itemId, event) => {
+        const newQuantity = parseInt(event.target.value, 10);
+        if (!isNaN(newQuantity)) {
+            updateQuantity(itemId, newQuantity);
         }
+    };
+
+    const handleRemoveItem = (itemId) => {
+        updateQuantity(itemId, 0); // Setting quantity to 0 triggers removal
     };
 
     return (
@@ -87,68 +114,71 @@ const CartPage = () => {
             ) : cartItems.length === 0 ? (
                 <Typography variant="h6">Your cart is empty</Typography>
             ) : (
-                <Grid container spacing={2} marginTop={2}>
-                    {cartItems.map(item => (
-    <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
-        <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="space-between"
-            padding={2}
-            border="1px solid #ccc"
-            borderRadius={5}
-            height="100%"
-        >
-            <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                textAlign="center"
-            >
-                <img
-                    src={item.product.imageUrl}
-                    alt={item.product.name}
-                    style={{ width: 100, height: 100, objectFit: 'contain', borderRadius: '5px' }}
-                />
-                <Typography variant="h6" marginTop={1}>
-                    {item.product.name}
-                </Typography>
-                <Typography variant="body1">
-                    Price: ${item.product.price}
-                </Typography>
-                <Box display="flex" alignItems="center" marginTop={1}>
-                    <Typography variant="body1">Quantity: </Typography>
-                    <TextField
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) => handleQuantityChange(item.productId, e)}
-                        sx={{ width: '60px', marginLeft: '10px' }}
-                    />
-                </Box>
-            </Box>
-            <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                width="100%"
-                marginTop={2}
-            >
-                <Button
-                    variant="contained"
-                    onClick={() => handleRemoveFromCart(item.id)}
-                    sx={{ width: '80%' }}
-                >
-                    Remove from Cart
-                </Button>
-            </Box>
-        </Box>
-    </Grid>
-))}
-                </Grid>
+                <>
+                    <Grid container spacing={2} marginTop={2}>
+                        {cartItems.map(item => (
+                            <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
+                                <Box
+                                    display="flex"
+                                    flexDirection="column"
+                                    alignItems="center"
+                                    justifyContent="space-between"
+                                    padding={2}
+                                    border="1px solid #ccc"
+                                    borderRadius={5}
+                                    height="100%"
+                                >
+                                    <Box
+                                        display="flex"
+                                        flexDirection="column"
+                                        alignItems="center"
+                                        textAlign="center"
+                                    >
+                                        <img
+                                            src={item.product.imageUrl}
+                                            alt={item.product.name}
+                                            style={{ width: 100, height: 100, objectFit: 'contain', borderRadius: '5px' }}
+                                        />
+                                        <Typography variant="h6" marginTop={1}>
+                                            {item.product.name}
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            Price: ${item.product.price}
+                                        </Typography>
+                                        <Box display="flex" alignItems="center" marginTop={1}>
+                                            <Typography variant="body1">Quantity: </Typography>
+                                            <TextField
+                                                type="number"
+                                                value={item.quantity}
+                                                onChange={(event) => handleQuantityChange(item.id, event)}
+                                                sx={{ width: '60px', marginLeft: '10px' }}
+                                            />
+                                        </Box>
+                                        <Button
+                                            variant="outlined"
+                                            color="error"
+                                            onClick={() => handleRemoveItem(item.id)}
+                                            sx={{ marginTop: 1 }}
+                                        >
+                                            Remove
+                                        </Button>
+                                    </Box>
+                                </Box>
+                            </Grid>
+                        ))}
+                    </Grid>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleCheckout}
+                        sx={{ marginTop: 3 }}
+                    >
+                        Checkout
+                    </Button>
+                </>
             )}
             <Snackbar
-                open={!!alertMessage}
+                open={openAlert}
                 autoHideDuration={6000}
                 onClose={handleCloseAlert}
             >
