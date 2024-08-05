@@ -156,11 +156,10 @@ const searchProducts = async (req, res) => {
     try {
         const { page = 1, limit = 10 } = req.query;
         const products = await prisma.product.findMany({
-            skip: (page - 1) * limit,
-            take: Number(limit),
-            where: {
-                // Add your search criteria here
-            }
+          skip: (page - 1) * limit,
+          take: Number(limit),
+          where: {
+           }
         });
         res.json(products);
     } catch (error) {
@@ -196,13 +195,13 @@ const deleteProduct = async (req, res) => {
     }
 };
 
-// Define routes
+// Define routes\
+router.get('/search', searchProducts)
 router.get('/', getAllProducts);
 router.get('/:id', getProductById);
 router.post('/', createProduct);
 router.put('/:id', updateProduct);
 router.delete('/:id', deleteProduct);
-router.get('/search', searchProducts)
 router.get('/paginate', paginateProducts);
 
 export default router;

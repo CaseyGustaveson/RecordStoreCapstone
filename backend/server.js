@@ -10,6 +10,7 @@ import cartRoutes from './src/api/cart.js';
 import checkoutRoutes from './src/api/checkout.js';
 
 
+
 dotenv.config();
 
 const app = express();
@@ -26,6 +27,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/checkout', checkoutRoutes);
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

@@ -18,21 +18,34 @@ const LoginPage = ({ setIsLoggedIn, setUserRole }) => {
         setLoading(true);
         try {
             console.log('Attempting login with:', { email, password });
-
-            const data = await loginUser({ email, password });
+    
+            const apiUrl = import.meta.env.VITE_API_URL;
+            const response = await fetch(`${apiUrl}/api/auth/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            const data = await response.json();
             console.log('Login successful:', data);
             console.log('User role:', data.role);
-
+    
             setAlertMessage('Login successful!');
             setAlertSeverity('success');
             setOpenAlert(true);
-
+    
             localStorage.setItem('token', data.token);
             localStorage.setItem('role', data.role);
-
+    
             setIsLoggedIn(true);
             setUserRole(data.role);
-
+    
             if (data.role === 'ADMIN') {
                 navigate('/admin');
             } else {
