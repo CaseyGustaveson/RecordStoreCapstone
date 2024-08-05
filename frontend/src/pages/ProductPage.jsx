@@ -10,10 +10,9 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL;
-const PRODUCTS_API_URL = `${API_URL}/products`;
-const CATEGORIES_API_URL = `${API_URL}/categories`;
-const CART_API_URL = `${API_URL}/cart`;
+const PRODUCTS_API_URL = import.meta.env.VITE_PRODUCTS_API_URL;
+const CATEGORIES_API_URL = import.meta.env.VITE_CATEGORY_API_URL;
+const CART_API_URL = import.meta.env.VITE_CART_API_URL;
 
 const Products = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -29,25 +28,44 @@ const Products = () => {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
+        console.log('Fetching products and categories...');
         const [productsResponse, categoriesResponse] = await Promise.all([
           axios.get(`${PRODUCTS_API_URL}?page=${currentPage}&limit=${itemsPerPage}`),
           axios.get(CATEGORIES_API_URL),
         ]);
-  
-        const productsData = productsResponse.data?.products || [];
-        const categoriesData = categoriesResponse.data?.categories || [];
-        const totalPages = productsResponse.data?.totalPages || 1;
-  
+
+        console.log('Raw Products response:', productsResponse.data);
+        console.log('Raw Categories response:', categoriesResponse.data);
+
+        // Log the structure of the responses
+        console.log('Products response structure:', Object.keys(productsResponse.data));
+        console.log('Categories response structure:', Object.keys(categoriesResponse.data));
+
+        // Ensure the data is properly handled
+        const productsData = productsResponse.data.products || productsResponse.data || [];
+        const categoriesData = categoriesResponse.data.categories || categoriesResponse.data || [];
+        const totalPages = productsResponse.data.totalPages || 1;
+
+        console.log('Processed Products data:', productsData);
+        console.log('Processed Categories data:', categoriesData);
+        console.log('Processed Total pages:', totalPages);
+
         setProducts(productsData);
         setCategories(categoriesData);
         setTotalPages(totalPages);
+
+        // Log state immediately after setting it
+        console.log('Products state after set:', productsData);
+        console.log('Categories state after set:', categoriesData);
+        console.log('Total pages after set:', totalPages);
       } catch (error) {
+        console.error('Error fetching data:', error.response ? error.response.data : error.message);
         setError("Failed to fetch data");
       } finally {
         setIsLoading(false);
       }
     };
-  
+
     fetchInitialData();
   }, [currentPage, itemsPerPage]);
 

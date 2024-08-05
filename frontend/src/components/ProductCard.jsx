@@ -4,30 +4,38 @@ import { Card, CardContent, Typography, CardMedia, Button, Stack } from '@mui/ma
 const ProductCard = ({ product, onEdit, onSubmit }) => {
   const defaultImage = 'https://via.placeholder.com/200x140?text=No+Image';
 
+  // Check if product is defined and has the necessary properties
+  const productName = product?.name || 'No Name';
+  const productPrice = product?.price?.toFixed(2) || '0.00';
+  const productReleaseYear = product?.releaseYear || 'Unknown';
+  const productCategory = product?.category?.name || 'Unknown';
+  const productQuantity = product?.quantity || 0;
+  const productImageUrl = product?.imageUrl || defaultImage;
+
   return (
     <Card sx={{ width: 160, borderRadius: 2, boxShadow: 3, margin: 1 }}>
       <CardMedia
         component="img"
-        alt={product.name}
+        alt={productName}
         height="100"
-        image={product.imageUrl || defaultImage} 
+        image={productImageUrl} 
         sx={{ objectFit: 'cover' }} 
       />
       <CardContent sx={{ padding: 1 }}>
         <Typography variant="h6" component="div" sx={{ mb: 0.5, textAlign: 'center', fontSize: '0.9rem' }}>
-          {product.name}
+          {productName}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', fontSize: '0.8rem' }}>
-          ${product.price.toFixed(2)}
+          ${productPrice}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', fontSize: '0.8rem' }}>
-          Release Year: {product.releaseYear}
+          Release Year: {productReleaseYear}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', fontSize: '0.8rem' }}>
-          Category: {product.category.name}
+          Category: {productCategory}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', fontSize: '0.8rem' }}>
-          {product.quantity} in stock
+          {productQuantity} in stock
         </Typography>
       </CardContent>
       <CardContent sx={{ paddingTop: 0, paddingBottom: 1 }}>

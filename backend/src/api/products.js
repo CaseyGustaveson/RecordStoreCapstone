@@ -9,7 +9,7 @@ const router = express.Router();
 // Route handlers
 const getAllProducts = async (req, res) => {
     try {
-        const products = await prisma.product.findMany();
+        const products = await prisma.product.findMany(); 
         res.json(products);
     } catch (error) {
         console.error('Error fetching products:', error);
@@ -81,13 +81,17 @@ const createProduct = async (req, res) => {
 
         const parsedPrice = parseFloat(price);
         if (isNaN(parsedPrice) || parsedPrice <= 0) {
-            return res.status(400).json({ error: "Valid price is required" });
+            return res.status(400).json({ error: "Valid price is required" }); 
+        }
+        const parsedReleaseYear = parseInt(releaseYear, 10);
+        if (isNaN(parsedReleaseYear)) {
+            return res.status(400).json({ error: "Valid release year is required" });
         }
 
         const newProduct = await prisma.product.create({
             data: {
                 name,
-                releaseYear,
+                releaseYear: parsedReleaseYear,
                 price: parsedPrice,
                 quantity: quantity ? parseInt(quantity, 10) : 1,
                 imageUrl,
@@ -149,25 +153,23 @@ const updateProduct = async (req, res) => {
 };
 
 const searchProducts = async (req, res) => {
-    const { q } = req.query;
-    if (!q) {
-        return res.status(400).json({ error: 'Search term is required' });
-    }
     try {
+        const { page = 1, limit = 10 } = req.query;
         const products = await prisma.product.findMany({
+            skip: (page - 1) * limit,
+            take: Number(limit),
             where: {
-                name: {
-                    contains: q,
-                    mode: 'insensitive',
-                },
-            },
+                // Add your search criteria here
+            }
         });
         res.json(products);
     } catch (error) {
-        console.error('Error searching products:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error fetching search results:', error);
+        res.status(500).json({ error: `Failed to fetch search results: ${error.message}` });
     }
 };
+
+
 
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
@@ -200,7 +202,7 @@ router.get('/:id', getProductById);
 router.post('/', createProduct);
 router.put('/:id', updateProduct);
 router.delete('/:id', deleteProduct);
-router.get('/search', searchProducts);
+router.get('/search', searchProducts)
 router.get('/paginate', paginateProducts);
 
 export default router;

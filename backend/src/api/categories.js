@@ -30,15 +30,15 @@ const authenticateToken = async (req, res, next) => {
     }
 }
 
-const getCatgeories = async (req, res) => {
+const getCategories = async (req, res) => {
     try {
-        const categories = await prisma.category.findMany();
-        res.json(categories);
+      const categories = await prisma.category.findMany();
+      res.json(categories);
     } catch (error) {
-        console.error('Error fetching categories:', error);
-        res.sendStatus(500);
+      console.error('Error fetching categories:', error);
+      res.status(500).json({ error: 'Failed to fetch categories' });
     }
-}
+  };
 
 const addCategory = async (req, res) => {
     const { name } = req.body;
@@ -72,7 +72,7 @@ const deleteCategory = async (req, res) => {
     }
 }
 
-router.get('/', getCatgeories);
+router.get('/', getCategories);
 router.post('/', authenticateToken, addCategory);
 router.delete('/:id', authenticateToken, deleteCategory);
 

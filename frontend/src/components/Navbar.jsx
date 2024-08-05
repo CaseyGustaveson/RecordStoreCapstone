@@ -13,11 +13,12 @@ const Navbar = ({ isLoggedIn, userRole, setIsLoggedIn, setUserRole }) => {
     setSearchTerm(event.target.value);
   };
 
-  const handleSearchSubmit = () => {
-    if (searchTerm.trim()) {
-      navigate(`/search?query=${encodeURIComponent(searchTerm.trim())}`);
-    }
-  };
+const handleSearchSubmit = () => {
+  if (searchTerm.trim()) {
+    navigate(`/search?query=${encodeURIComponent(searchTerm.trim())}`);
+  }
+};
+
 
   const handleNavigation = (path) => {
     navigate(path);
