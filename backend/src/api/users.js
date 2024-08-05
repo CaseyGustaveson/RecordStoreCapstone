@@ -35,15 +35,14 @@ const getUserById = async (req, res) => {
 }
 
 const createUser = async (req, res) => {
-    const { name, email, password } = req.body;
+    const {  email,password,firstname,lastname,address,  } = req.body;
     try {
-        // Ensure required fields are provided
-        if (!name || !email || !password) {
+        if (!firstname ||!lastname || !email || !password|| !phone|| !address) {
             return res.status(400).json({ error: 'Required fields are missing' });
         }
 
         const newUser = await prisma.user.create({
-            data: { name, email, password }
+            data: { firstname,lastname, email, password, phone, address }
         });
         res.status(201).json(newUser);
     } catch (error) {
@@ -54,7 +53,7 @@ const createUser = async (req, res) => {
 
 const editUser = async (req, res) => {
     const { id } = req.params;
-    const { name, email, password } = req.body;
+    const { firstname, lastname, email, password, phone, address } = req.body;
     try {
         const user = await prisma.user.findUnique({
             where: { id: Number(id) }
@@ -65,7 +64,7 @@ const editUser = async (req, res) => {
 
         const updatedUser = await prisma.user.update({
             where: { id: Number(id) },
-            data: { name, email, password }
+            data: { email, password ,firstname, lastname, phone, address }
         });
         res.json(updatedUser);
     } catch (error) {

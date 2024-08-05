@@ -47,6 +47,9 @@ const LoginPage = ({ setIsLoggedIn, setUserRole }) => {
             setLoading(false);
         }
     };
+    const handleSingup = () => {
+        navigate('/register');
+    };
 
     const handleCloseAlert = () => {
         setOpenAlert(false);
@@ -86,6 +89,9 @@ const LoginPage = ({ setIsLoggedIn, setUserRole }) => {
                     disabled={loading}
                 >
                     {loading ? 'Logging in...' : 'Login'}
+                </Button>
+                <Button onClick={handleSingup} variant="outlined" color="primary" fullWidth>
+                    Sign up
                 </Button>
             </Stack>
             <Snackbar

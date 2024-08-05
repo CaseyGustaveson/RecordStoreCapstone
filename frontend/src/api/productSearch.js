@@ -1,23 +1,27 @@
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL
+const PRODUCTS_API_URL = `${API_URL}/products`
 
-const API_URL = 'http://localhost:3001/api/products';
+console.log('API_URL:',API_URL)
 
-// Fetch all products
-export const getProducts = async () => {
+// Fetch all products with pagination
+export const getProducts = async (page = 1, limit = 10) => {
   try {
-    const response = await axios.get(`${API_URL}/products`);
+    const response = await axios.get(`${API_URL}/paginate`, {  // Updated endpoint for pagination
+      params: { page, limit }
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching products:', error);
-    return [];
+    return { products: [], totalPages: 1 };
   }
 };
 
 // Fetch a single product by ID
-export const getProduct = async (productId) => {
+export const getProductById = async (productId) => {
   try {
-    const response = await axios.get(`${API_URL}/products/${productId}`);
+    const response = await axios.get(`${API_URL}/${productId}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching product:', error);
@@ -28,7 +32,7 @@ export const getProduct = async (productId) => {
 // Create a new product
 export const createProduct = async (productData) => {
   try {
-    const response = await axios.post(`${API_URL}/products`, productData, {
+    const response = await axios.post(API_URL, productData, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     });
     return response.data;
@@ -41,18 +45,18 @@ export const createProduct = async (productData) => {
 // Update an existing product
 export const updateProduct = async (id, productData) => {
   try {
-      const response = await axios.put(`${API_URL}/products/${id}`, productData);
-      return response.data;
+    const response = await axios.put(`${API_URL}/${id}`, productData);
+    return response.data;
   } catch (error) {
-      console.error('Error updating product:', error);
-      throw error;
+    console.error('Error updating product:', error);
+    throw error;
   }
 };
 
 // Delete a product
 export const deleteProduct = async (productId) => {
   try {
-    await axios.delete(`${API_URL}/products/${productId}`, {
+    await axios.delete(`${API_URL}/${productId}`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     });
     return { success: true };
@@ -65,7 +69,7 @@ export const deleteProduct = async (productId) => {
 // Fetch products by category
 export const getProductsByCategory = async (categoryId) => {
   try {
-    const response = await axios.get(`${API_URL}/products`, {
+    const response = await axios.get(API_URL, {
       params: { categoryId }
     });
     return response.data;
@@ -76,14 +80,24 @@ export const getProductsByCategory = async (categoryId) => {
 };
 
 // Search products
-export const getProductsBySearch = async (searchTerm) => {
+export const getProductsBySearch = async (searchTerm = '') => {
   try {
-    const response = await axios.get(API_URL, {
-      params: { q: searchTerm }
+    // Check if searchTerm is empty
+    if (!searchTerm.trim()) {
+      // Handle the case where no search term is provided
+      const response = await axios.get(PRODUCTS_API_URL); // or a different endpoint if applicable
+      console.log('API Response (no search term):', response.data);
+      return response.data;
+    }
+    
+    // Perform search with the provided searchTerm
+    const response = await axios.get(PRODUCTS_API_URL, {
+      params: { query: searchTerm }
     });
+    console.log('API Response (with search term):', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error fetching products:', error);
-    throw error; 
+    console.error('Error fetching products by search:', error);
+    throw error;
   }
 };

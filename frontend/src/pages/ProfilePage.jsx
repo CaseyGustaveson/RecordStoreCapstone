@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Button, CircularProgress, TextField, Snackbar, Alert } from '@mui/material';
+import { Container, Typography, Button, CircularProgress, TextField, Snackbar, Alert, Box } from '@mui/material';
 import { getUserProfile, updateUserProfile } from '../api/profileApi'; 
 import { useNavigate } from 'react-router-dom';
+
 
 const ProfilePage = () => {
     const [profile, setProfile] = useState({ firstname: '', lastname: '', email: '', password: '' });
@@ -55,6 +56,7 @@ const ProfilePage = () => {
             setShowSnackbar(true);
         }
     };
+    
 
     const handleSnackbarClose = () => {
         setShowSnackbar(false);
@@ -74,35 +76,35 @@ const ProfilePage = () => {
                 Profile
             </Typography>
             <form onSubmit={handleSubmit}>
-                <div>
+                <Box display = "flex" justifyContent="center" alignItems = "center"mb = {2}>
                     <TextField
                         label="First Name"
                         name="firstname"
                         value={profile.firstname || ''}
                         onChange={handleInputChange}
                         disabled={!isEditing.firstname}
-                        fullWidth
+                        halfWidth
                         margin="normal"
                     />
                     <Button onClick={() => handleEditToggle('firstname')}>
                         {isEditing.firstname ? 'Save' : 'Edit'}
                     </Button>
-                </div>
-                <div>
+                </Box>
+                <Box display = "flex" justifyContent="center" alignItems = "center" mb = {2}>
                     <TextField
                         label="Last Name"
                         name="lastname"
                         value={profile.lastname || ''}
                         onChange={handleInputChange}
                         disabled={!isEditing.lastname}
-                        fullWidth
+                        halfWidth
                         margin="normal"
                     />
                     <Button onClick={() => handleEditToggle('lastname')}>
                         {isEditing.lastname ? 'Save' : 'Edit'}
                     </Button>
-                </div>
-                <div>
+                    </Box>
+                    <Box display = "flex" justifyContent="center" alignItems = "center" mb = {2}>
                     <TextField
                         label="Email"
                         name="email"
@@ -110,14 +112,14 @@ const ProfilePage = () => {
                         value={profile.email || ''}
                         onChange={handleInputChange}
                         disabled={!isEditing.email}
-                        fullWidth
+                        halfWidth
                         margin="normal"
                     />
                     <Button onClick={() => handleEditToggle('email')}>
                         {isEditing.email ? 'Save' : 'Edit'}
                     </Button>
-                </div>
-                <div>
+    </Box>
+    <Box display = "flex" justifyContent="center" alignItems = "center" mb = {2}>
                     <TextField
                         label="Password"
                         name="password"
@@ -125,16 +127,19 @@ const ProfilePage = () => {
                         value={profile.password || ''}
                         onChange={handleInputChange}
                         disabled={!isEditing.password}
-                        fullWidth
+                        halfWidth
                         margin="normal"
                     />
                     <Button onClick={() => handleEditToggle('password')}>
                         {isEditing.password ? 'Save' : 'Edit'}
                     </Button>
-                </div>
+                </Box>
+                <Box display="flex" justifyContent="center" alignItems="center" mb={2} mr={9}  >
                 <Button type="submit" variant="contained" color="primary">
                     Update Profile
-                </Button>
+                    </Button>
+                    </Box>
+                    
             </form>
             <Snackbar
                 open={showSnackbar}
