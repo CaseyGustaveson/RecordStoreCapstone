@@ -9,6 +9,7 @@ import userRoutes from './src/api/users.js';
 import cartRoutes from './src/api/cart.js';
 import checkoutRoutes from './src/api/checkout.js';
 
+
 dotenv.config();
 
 const app = express();

@@ -21,10 +21,13 @@ const AdminUsers = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({
-    name: "",
     email: "",
     password: "",
-    role: "",
+    firstname: "",
+    lastname: "",
+    phoneNumber: "",
+    address: "",
+    role: "ADMIN"
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");

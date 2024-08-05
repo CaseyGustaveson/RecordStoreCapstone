@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { Alert, Button, TextField, Snackbar, Stack, Box } from "@mui/material";
 
-const RegisterPage = () => {
-    const [password, setPassword] = useState("");
-    const [email, setEmail] = useState("");
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
 
+
+const RegisterPage = () => {
+        const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [firstname, setFirstName] = useState("");
+    const [lastname, setLastName] = useState("");
+    const [phone, setPhone] = useState("");
+    const [address, setAddress] = useState("");
     const [alertMessage, setAlertMessage] = useState("");
     const [alertSeverity, setAlertSeverity] = useState("success");
     const [openAlert, setOpenAlert] = useState(false);
@@ -15,17 +17,18 @@ const RegisterPage = () => {
     const handleRegister = async () => {
         try {
             const apiUrl = import.meta.env.VITE_API_URL;
-            const response = await fetch(`${apiUrl}/api/auth/register`, {
+            const response = await fetch(`${apiUrl}/auth/register`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ 
-                    password, 
-                    email, 
-                    firstname: firstName,  // Update to match backend field names
-                    lastname: lastName,
-                    phone: phoneNumber,
+                body: JSON.stringify({
+                    email,
+                    password,
+                    firstname,
+                    lastname,
+                    phone,
+                    address,
                 }),
             });
     
@@ -36,7 +39,8 @@ const RegisterPage = () => {
                 setEmail("");
                 setFirstName("");
                 setLastName("");
-                setPhoneNumber("");
+                setAddress("");
+                setPhone("");
     
                 setAlertMessage("Registration successful!");
                 setAlertSeverity("success");
@@ -95,7 +99,7 @@ const RegisterPage = () => {
                     <TextField
                         label="First Name"
                         variant="outlined"
-                        value={firstName}
+                        value={firstname}
                         onChange={(e) => setFirstName(e.target.value)}
                         fullWidth
                         sx={{ maxWidth: 350 }}
@@ -103,7 +107,7 @@ const RegisterPage = () => {
                     <TextField
                         label="Last Name"
                         variant="outlined"
-                        value={lastName}
+                        value={lastname}
                         onChange={(e) => setLastName(e.target.value)}
                         fullWidth
                         sx={{ maxWidth: 350 }}
@@ -112,10 +116,18 @@ const RegisterPage = () => {
                     <TextField
                         label="Phone Number"
                         variant="outlined"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
                         fullWidth
                         sx={{ maxWidth: 350 }}
+                    />
+                    <TextField
+                        label="Address"
+                        variant="outlined"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        fullWidth
+                        sx={{ maxWidth: 350 }} 
                     />
                     <Button
                         onClick={handleRegister}

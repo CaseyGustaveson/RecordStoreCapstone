@@ -1,6 +1,6 @@
-import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import express from 'express';
 
 dotenv.config();
 const prisma = new PrismaClient();
@@ -17,8 +17,37 @@ const getAllProducts = async (req, res) => {
     }
 };
 
+const paginateProducts = async (req, res) => {
+    const { page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+
+    try {
+        const [products, totalProducts] = await Promise.all([
+            prisma.product.findMany({
+                skip: offset,
+                take: parseInt(limit, 10),
+            }),
+            prisma.product.count(),
+        ]);
+
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        res.json({
+            products,
+            totalPages,
+            currentPage: parseInt(page, 10),
+        });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).json({ error: 'Failed to fetch products' });
+    }
+};
+
 const getProductById = async (req, res) => {
     const { id } = req.params;
+    if (!id || isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid product ID' });
+    }
     try {
         const product = await prisma.product.findUnique({
             where: { id: Number(id) }
@@ -36,36 +65,54 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
     const { name, releaseYear, price, quantity, categoryId, imageUrl } = req.body;
+
     try {
         if (!categoryId) {
-            throw new Error("Category ID is required");
+            return res.status(400).json({ error: "Category ID is required" });
         }
-        const parsedPrice = parseFloat(price.replace('$', ''));
-        if (isNaN(parsedPrice)) {
-            throw new Error("Valid price is required");
+
+        const categoryExists = await prisma.category.findUnique({
+            where: { id: parseInt(categoryId, 10) },
+        });
+
+        if (!categoryExists) {
+            return res.status(400).json({ error: "Category does not exist" });
         }
+
+        const parsedPrice = parseFloat(price);
+        if (isNaN(parsedPrice) || parsedPrice <= 0) {
+            return res.status(400).json({ error: "Valid price is required" });
+        }
+
         const newProduct = await prisma.product.create({
             data: {
                 name,
                 releaseYear,
                 price: parsedPrice,
-                quantity: quantity ? parseInt(quantity, 10) : 1, // Default to 1 if quantity is not provided
+                quantity: quantity ? parseInt(quantity, 10) : 1,
                 imageUrl,
                 category: {
                     connect: { id: parseInt(categoryId, 10) },
                 },
             },
         });
+
         res.status(201).json(newProduct);
+
     } catch (error) {
         console.error('Error creating product:', error);
         res.status(500).json({ error: "Error creating product", details: error.message });
     }
 };
 
+
+
 const updateProduct = async (req, res) => {
     const { id } = req.params;
     const { name, releaseYear, price, quantity, categoryId, imageUrl } = req.body;
+    if (!id || isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid product ID' });
+    }
     try {
         const existingProduct = await prisma.product.findUnique({
             where: { id: Number(id) }
@@ -73,21 +120,23 @@ const updateProduct = async (req, res) => {
         if (!existingProduct) {
             return res.status(404).json({ error: 'Product not found' });
         }
+
         const updatedData = {
             name: name ?? existingProduct.name,
             releaseYear: releaseYear ?? existingProduct.releaseYear,
-            price: price !== undefined ? parseFloat(price.replace(/[^0-9.]/g, '')) : existingProduct.price,
-            quantity: quantity !== undefined ? parseInt(quantity, 10) : existingProduct.quantity, // Default to existing quantity if not provided
+            price: price,
+            quantity: quantity ?? existingProduct.quantity,
             imageUrl: imageUrl ?? existingProduct.imageUrl,
             category: categoryId ? { connect: { id: parseInt(categoryId) } } : undefined
         };
-        // Ensure quantity defaults to 1 if invalid
+
         if (isNaN(updatedData.quantity) || updatedData.quantity <= 0) {
             updatedData.quantity = 1;
         }
         if (isNaN(updatedData.price) || updatedData.price <= 0) {
             return res.status(400).json({ error: 'Invalid price' });
         }
+
         const updatedProduct = await prisma.product.update({
             where: { id: Number(id) },
             data: updatedData
@@ -101,10 +150,10 @@ const updateProduct = async (req, res) => {
 
 const searchProducts = async (req, res) => {
     const { q } = req.query;
+    if (!q) {
+        return res.status(400).json({ error: 'Search term is required' });
+    }
     try {
-        if (!q) {
-            return res.status(400).json({ error: 'Search term is required' });
-        }
         const products = await prisma.product.findMany({
             where: {
                 name: {
@@ -116,12 +165,15 @@ const searchProducts = async (req, res) => {
         res.json(products);
     } catch (error) {
         console.error('Error searching products:', error);
-        res.status(500).json({ error: 'Error searching products' });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
+    if (!id || isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid product ID' });
+    }
     try {
         const product = await prisma.product.findUnique({
             where: { id: Number(id) }
@@ -149,5 +201,6 @@ router.post('/', createProduct);
 router.put('/:id', updateProduct);
 router.delete('/:id', deleteProduct);
 router.get('/search', searchProducts);
+router.get('/paginate', paginateProducts);
 
 export default router;

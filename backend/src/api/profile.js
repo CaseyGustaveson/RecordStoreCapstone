@@ -51,7 +51,6 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
     const { firstname, lastname, email, password } = req.body;
 
-    // Log only non-sensitive data
     console.log('Updating profile for user:', req.user.id);
 
     const updateData = {};
@@ -76,7 +75,8 @@ const updateProfile = async (req, res) => {
 };
 
 // Define routes
-router.get('/profile', authenticateToken, getProfile);
-router.put('/profile', authenticateToken, updateProfile);
+router.get('/', authenticateToken, getProfile);
+router.put('/', authenticateToken, updateProfile);
+router.post('/', authenticateToken, updateProfile);
 
 export default router;

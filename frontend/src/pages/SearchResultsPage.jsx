@@ -1,92 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Typography, Grid, CircularProgress, Alert, Card, CardContent, CardMedia, Button } from '@mui/material';
-import { useLocation } from 'react-router-dom';
-import { getProductsBySearch } from '../api/productSearch'; 
+import React, { useEffect, useState } from 'react';
+import { Box, Typography, Grid, Pagination } from '@mui/material';
+import axios from 'axios';
 
-const SearchResultsPage = ({ showSearchBar = true }) => {
-  const location = useLocation();
-  const query = new URLSearchParams(location.search);
-  const initialSearchTerm = query.get('query') || '';
+const API_URL = import.meta.env.VITE_API_URL;
+const SEARCH_API_URL = `${API_URL}/products/search`;
 
-  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+const SearchResultsPage = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [results, setResults] = useState([]);
+  const [error, setError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
-    if (initialSearchTerm) {
-      handleSearchSubmit(initialSearchTerm);
-    }
-  }, [initialSearchTerm]);
-
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const handleSearchSubmit = async (term = searchTerm) => {
-    setLoading(true);
-    setError(null);
-    try {
-      console.log('Fetching products with search term:', term);
-      const result = await getProductsBySearch(term);
-      console.log('Search results:', result);
-      if (Array.isArray(result) && result.length > 0) {
-        setProducts(result);
-      } else {
-        setProducts([]);
-        setError('No products found');
+    const fetchSearchResults = async () => {
+      try {
+        const response = await axios.get(`${SEARCH_API_URL}?page=${currentPage}&limit=${itemsPerPage}`);
+        console.log('API Response:', response.data); // Log API response for debugging
+        setResults(response.data?.results || []);
+        setTotalPages(response.data?.totalPages || 1);
+      } catch (error) {
+        console.error('Error fetching search results:', error); // Log error details
+        setError('Failed to fetch search results');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error('Error fetching products:', err);
-      setError('Error fetching products');
-    }
-    setLoading(false);
+    };
+
+    fetchSearchResults();
+  }, [currentPage, itemsPerPage]);
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
   };
 
   return (
-    <Container>
-      {showSearchBar && (
-        <Typography variant="h4" sx={{ marginBottom: 2 }}>
-          Search Results
-        </Typography>
-      )}
-      {loading ? (
-        <CircularProgress />
-      ) : error ? (
-        <Alert severity="error">{error}</Alert>
+    <Box padding={2}>
+      <Typography variant="h4" gutterBottom>
+        Search Results
+      </Typography>
+      {isLoading ? (
+        <Typography variant="body1">Loading...</Typography>
       ) : (
-        <Grid container spacing={4}>
-          {products.length ? (
-            products.map((product) => (
-              <Grid item xs={12} sm={6} md={4} key={product.id}>
-                <Card>
-                  {product.imageUrl && (
-                    <CardMedia
-                      component="img"
-                      alt={product.name}
-                      height="140"
-                      image={product.imageUrl}
-                    />
-                  )}
-                  <CardContent>
-                    <Typography variant="h5">{product.name}</Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {product.releaseYear}
-                    </Typography>
-                    <Typography variant="h6">${product.price}</Typography>
-                    <Button variant="contained" color="primary" onClick={() => { /* Handle add to cart */ }}>
-                      Add to Cart
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))
+        <>
+          {error ? (
+            <Typography variant="body1" color="error">
+              {error}
+            </Typography>
           ) : (
-            <Typography>No products available</Typography>
+            <>
+              <Grid container spacing={2} marginTop={2}>
+                {results.length ? (
+                  results.map((result) => (
+                    <Grid item xs={12} sm={6} md={4} lg={3} key={result.id}>
+                      <Box
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        padding={2}
+                        border="1px solid #ccc"
+                        borderRadius={5}
+                        height="100%"
+                      >
+                        <Typography variant="h5">{result.name}</Typography>
+                        <Typography variant="body1">{result.description}</Typography>
+                        <Typography variant="body1">${result.price}</Typography>
+                      </Box>
+                    </Grid>
+                  ))
+                ) : (
+                  <Typography>No results found</Typography>
+                )}
+              </Grid>
+              <Box display="flex" justifyContent="center" marginTop={2}>
+                <Pagination
+                  count={totalPages}
+                  page={currentPage}
+                  onChange={handlePageChange}
+                  color="primary"
+                />
+              </Box>
+            </>
           )}
-        </Grid>
+        </>
       )}
-    </Container>
+    </Box>
   );
 };
 

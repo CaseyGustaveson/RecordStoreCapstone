@@ -8,14 +8,6 @@ dotenv.config();
 const prisma = new PrismaClient();
 const router = express.Router();
 
-// const decodeToken = (token) => {
-//     try {
-//         return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-//     } catch (error) {
-//         console.error('Error decoding token:', error);
-//         return null;
-//     }
-// };
 
 // Middleware for Authentication
 export const authenticateToken = async (req, res, next) => {
@@ -39,7 +31,6 @@ export const authenticateToken = async (req, res, next) => {
         res.sendStatus(403);
     }
 };
-
 // Middleware to check if user is admin
 const isAdmin = (req, res, next) => {
     if (req.user && req.user.role === 'ADMIN') {
@@ -53,35 +44,37 @@ const isAdmin = (req, res, next) => {
 const register = async (req, res) => {
     console.log('Request body:', req.body); // Log the request body
 
-    const { firstname, lastname, email, phone, password, role } = req.body;
+    const { email, password, firstname, lastname, phone,address,role} = req.body;
 
-    if (!firstname || !lastname || !email || !password) {
+    if (!email || !password || !firstname || !lastname||!phone||!address) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
-
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await prisma.user.create({
             data: {
-                firstname,
-                lastname,
                 email,
-                phone,
                 password: hashedPassword,
+                firstname,
+                lastname, 
+                phone,
+                address, 
                 role: role || 'USER',
             },
         });
+        const token = jwt.sign({ userId: user.id, role: user.role }, process.env.ACCESS_TOKEN_SECRET,{ 
+         expiresIn: '1h', 
 
-        const token = jwt.sign({ userId: user.id, role: user.role }, process.env.ACCESS_TOKEN_SECRET, {
-            expiresIn: '1h',
+
         });
-
         res.status(201).json({ token });
     } catch (error) {
         console.error('Error during registration:', error); // Log error details
         res.status(500).json({ error: 'Registration failed' });
     }
 };
+
+
 
 
 const login = async (req, res) => {
@@ -100,10 +93,7 @@ const login = async (req, res) => {
 
         const token = jwt.sign({ userId: user.id, role: user.role }, process.env.ACCESS_TOKEN_SECRET, {
             expiresIn: '1h',
-        });
-        const accessToken = jwt.sign({ userId: user.id, role: user.role }, process.env.ACCESS_TOKEN_SECRET, {
-            expiresIn: '1h',
-        });
+        });;
 
         res.status(200).json({ token, role: user.role });
     } catch (error) {
@@ -116,9 +106,26 @@ const logout = (req, res) => {
     res.status(200).json({ message: 'Logout successful' });
 };
 
+const refreshToken = (req, res) => {
+    const refreshToken = req.body.token;
+    if (!refreshToken) return res.sendStatus(401);
+    if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        const accessToken = jwt.sign({ userId: user.id, role: user.role }, process.env.ACCESS_TOKEN_SECRET, {
+            expiresIn: '1h',
+        });
+        res.json({ accessToken });
+    });
+};
+
+
 // Define routes directly in the file
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', logout);
+router.post('/refresh', refreshToken);
+
+
 
 export default router;

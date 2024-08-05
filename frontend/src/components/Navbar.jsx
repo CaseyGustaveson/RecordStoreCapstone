@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, Button, IconButton, TextField, Box } from '@mui/material';
+import ArrowBack from '@mui/icons-material/ArrowBack';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
@@ -13,12 +14,17 @@ const Navbar = ({ isLoggedIn, userRole, setIsLoggedIn, setUserRole }) => {
   };
 
   const handleSearchSubmit = () => {
-    const searchUrl = `/search?query=${encodeURIComponent(searchTerm)}`;
-    navigate(searchUrl);
+    if (searchTerm.trim()) {
+      navigate(`/search?query=${encodeURIComponent(searchTerm.trim())}`);
+    }
   };
 
   const handleNavigation = (path) => {
     navigate(path);
+  };
+
+  const backButton = () => {
+    navigate(-1);
   };
 
   const handleLogout = () => {
@@ -30,14 +36,17 @@ const Navbar = ({ isLoggedIn, userRole, setIsLoggedIn, setUserRole }) => {
   };
 
   return (
-    <AppBar position="static" style={{ backgroundColor: '#000000' }}>
+    <AppBar position="static" sx={{ backgroundColor: '#000000' }}>
       <Toolbar>
-        <Button color="inherit" onClick={() => handleNavigation('/')} style={{ textTransform: 'none' }}>
-          <Typography variant="h6" style={{ flexGrow: 1 }}>
+        <IconButton color="inherit" onClick={backButton}>
+          <ArrowBack />
+        </IconButton>
+        <Button color="inherit" onClick={() => handleNavigation('/')} sx={{ textTransform: 'none' }}>
+          <Typography variant="h6">
             My Record Shop
           </Typography>
         </Button>
-        <Box display="flex" alignItems="center" style={{ marginLeft: 'auto' }}>
+        <Box display="flex" alignItems="center" sx={{ marginLeft: 'auto' }}>
           <TextField
             variant="outlined"
             placeholder="Search..."
@@ -50,13 +59,13 @@ const Navbar = ({ isLoggedIn, userRole, setIsLoggedIn, setUserRole }) => {
               }
             }}
             InputProps={{
-              style: { backgroundColor: 'white' },
+              sx: { backgroundColor: 'white' },
             }}
-            style={{ marginRight: '8px', width: '200px' }}
+            sx={{ marginRight: '8px', width: '200px' }}
           />
           <Button
             variant="contained"
-            style={{ backgroundColor: '#76eec6', color: '#fff' }}
+            sx={{ backgroundColor: '#76eec6', color: '#fff' }}
             onClick={handleSearchSubmit}
           >
             Search
@@ -73,17 +82,14 @@ const Navbar = ({ isLoggedIn, userRole, setIsLoggedIn, setUserRole }) => {
           <>
             <IconButton color="inherit" onClick={() => handleNavigation(userRole === 'ADMIN' ? '/admin' : '/profile')}>
               <AccountCircleIcon />
-              <Typography variant="body2" style={{ marginLeft: '8px' }}>Profile</Typography>
+              <Typography variant="body2" sx={{ marginLeft: '8px' }}>Profile</Typography>
             </IconButton>
-            <Button color="inherit" onClick={handleLogout}>
-              Logout
-            </Button>
+            <Button color="inherit" onClick={handleLogout}>Logout</Button>
           </>
         )}
         <IconButton color="inherit" onClick={() => handleNavigation('/cart')}>
           <ShoppingCartIcon />
         </IconButton>
-        <Button onClick={() => handleNavigation('/cart')} color="inherit"></Button>
       </Toolbar>
     </AppBar>
   );
