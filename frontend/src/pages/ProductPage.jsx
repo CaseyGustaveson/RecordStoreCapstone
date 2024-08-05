@@ -34,30 +34,17 @@ const Products = () => {
           axios.get(CATEGORIES_API_URL),
         ]);
 
-        console.log('Raw Products response:', productsResponse.data);
-        console.log('Raw Categories response:', categoriesResponse.data);
-
-        // Log the structure of the responses
-        console.log('Products response structure:', Object.keys(productsResponse.data));
-        console.log('Categories response structure:', Object.keys(categoriesResponse.data));
-
         // Ensure the data is properly handled
         const productsData = productsResponse.data.products || productsResponse.data || [];
         const categoriesData = categoriesResponse.data.categories || categoriesResponse.data || [];
         const totalPages = productsResponse.data.totalPages || 1;
 
-        console.log('Processed Products data:', productsData);
-        console.log('Processed Categories data:', categoriesData);
-        console.log('Processed Total pages:', totalPages);
 
         setProducts(productsData);
         setCategories(categoriesData);
         setTotalPages(totalPages);
 
         // Log state immediately after setting it
-        console.log('Products state after set:', productsData);
-        console.log('Categories state after set:', categoriesData);
-        console.log('Total pages after set:', totalPages);
       } catch (error) {
         console.error('Error fetching data:', error.response ? error.response.data : error.message);
         setError("Failed to fetch data");
