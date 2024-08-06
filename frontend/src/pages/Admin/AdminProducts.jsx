@@ -17,8 +17,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_URL = "http://localhost:3001/api/products";
-const CATEGORY_API_URL = "http://localhost:3001/api/categories";
+const PRODUCTS_API_URL = import.meta.env.VITE_PRODUCTS_API_URL;
+const CATEGORY_API_URL = import.meta.env.VITE_CATEGORY_API_URL;
 
 const AdminProducts = () => {
   const navigate = useNavigate();
@@ -54,7 +54,7 @@ const AdminProducts = () => {
     const fetchInitialData = async () => {
       try {
         const [productsResponse, categoriesResponse] = await Promise.all([
-          axios.get(API_URL, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(PRODUCTS_API_URL, { headers: { Authorization: `Bearer ${token}` } }),
           axios.get(CATEGORY_API_URL, {
             headers: { Authorization: `Bearer ${token}` },
           }),
@@ -89,8 +89,9 @@ const AdminProducts = () => {
 
   const addProduct = async () => {
     try {
+      console.log("Adding product with data:", newProduct); // Log the product data
       const response = await axios.post(
-        API_URL,
+        PRODUCTS_API_URL,
         {
           ...newProduct,
           categoryId: newProduct.categoryId,
@@ -110,6 +111,7 @@ const AdminProducts = () => {
       });
       setSuccess("Product added successfully");
     } catch (error) {
+      console.error("Error adding product:", error.response?.data || error.message); // Log the error response
       setError("Failed to add product");
     }
   };
@@ -117,7 +119,7 @@ const AdminProducts = () => {
   const editProduct = async (id) => {
     try {
       const response = await axios.put(
-        `${API_URL}/${id}`,
+        `${PRODUCTS_API_URL}/${id}`,
         {
           ...newProduct,
           price: newProduct.price.toString(), // Ensure price is a string
@@ -154,7 +156,7 @@ const AdminProducts = () => {
 
   const deleteProduct = async (id) => {
     try {
-      await axios.delete(`${API_URL}/${id}`, {
+      await axios.delete(`${PRODUCTS_API_URL}/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProducts(products.filter((product) => product.id !== id));

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, Typography, CardMedia, Button, Stack } from '@mui/material';
 
-const ProductCard = ({ product, onEdit, onSubmit }) => {
+const ProductCard = ({ product, onAdd, onSubmit, }) => {
   const defaultImage = 'https://via.placeholder.com/200x140?text=No+Image';
 
   // Check if product is defined and has the necessary properties
@@ -40,11 +40,8 @@ const ProductCard = ({ product, onEdit, onSubmit }) => {
       </CardContent>
       <CardContent sx={{ paddingTop: 0, paddingBottom: 1 }}>
         <Stack direction="row" spacing={0.5} justifyContent="center">
-          <Button variant="contained" color="primary" size="small" onClick={() => onEdit(product)}>
-            Edit
-          </Button>
-          <Button variant="contained" color="secondary" size="small" onClick={() => onSubmit(product)}>
-            Submit
+          <Button variant="contained" color="primary" size="small" onClick={() => onAdd(product)}>
+            Add To Cart
           </Button>
         </Stack>
       </CardContent>
