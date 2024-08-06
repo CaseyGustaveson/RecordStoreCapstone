@@ -19,24 +19,33 @@ const getAllProducts = async (req, res) => {
 };
 
 const paginateProducts = async (req, res) => {
-    const { page = 1, limit = 10 } = req.query;
+    let { page = 1, limit = 10 } = req.query;
+    page = parseInt(page, 10);
+    limit = parseInt(limit, 10);
+
+    if (isNaN(page) || page < 1 || isNaN(limit) || limit < 1) {
+        return res.status(400).json({ error: 'Invalid page or limit' });
+    }
+
     const offset = (page - 1) * limit;
 
     try {
         const [products, totalProducts] = await Promise.all([
             prisma.product.findMany({
                 skip: offset,
-                take: parseInt(limit, 10),
+                take: limit
             }),
             prisma.product.count(),
         ]);
 
         const totalPages = Math.ceil(totalProducts / limit);
 
+        console.log(`Page: ${page}, Limit: ${limit}, Offset: ${offset}, Total Products: ${totalProducts}, Total Pages: ${totalPages}`);
+
         res.json({
             products,
             totalPages,
-            currentPage: parseInt(page, 10),
+            currentPage: page,
         });
     } catch (error) {
         console.error('Error fetching products:', error);
@@ -123,11 +132,19 @@ const updateProduct = async (req, res) => {
         if (!existingProduct) {
             return res.status(404).json({ error: 'Product not found' });
         }
+        const parsedReleaseYear = parseInt(releaseYear, 10);
+        if (isNaN(parsedReleaseYear)) {
+            return res.status(400).json({ error: "Valid release year is required" });
+        }
+        const parsedPrice = parseFloat(price);
+        if (isNaN(parsedPrice) || parsedPrice <= 0) {
+            return res.status(400).json({ error: "Valid price is required" }); 
+        }
 
         const updatedData = {
             name: name ?? existingProduct.name,
-            releaseYear: releaseYear ?? existingProduct.releaseYear,
-            price: price,
+            releaseYear: parsedReleaseYear ?? existingProduct.releaseYear,
+            price: parsedPrice,
             quantity: quantity ?? existingProduct.quantity,
             imageUrl: imageUrl ?? existingProduct.imageUrl,
             category: categoryId ? { connect: { id: parseInt(categoryId) } } : undefined
@@ -177,6 +194,7 @@ const deleteProduct = async (req, res) => {
 };
 
 const searchProducts = async (req, res) => {
+    console.log(req.query)
     const { query, page = 1, limit = 10 } = req.query;
     const offset = (page - 1) * limit;
 

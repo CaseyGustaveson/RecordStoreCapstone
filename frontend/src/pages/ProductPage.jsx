@@ -9,6 +9,7 @@ import {
   Pagination,
 } from '@mui/material';
 import axios from 'axios';
+import ProductCard from '../components/ProductCard';
 
 const PRODUCTS_API_URL = import.meta.env.VITE_PRODUCTS_API_URL;
 const CATEGORIES_API_URL = import.meta.env.VITE_CATEGORY_API_URL;
@@ -34,17 +35,13 @@ const Products = () => {
           axios.get(CATEGORIES_API_URL),
         ]);
 
-        // Ensure the data is properly handled
         const productsData = productsResponse.data.products || productsResponse.data || [];
         const categoriesData = categoriesResponse.data.categories || categoriesResponse.data || [];
         const totalPages = productsResponse.data.totalPages || 1;
 
-
         setProducts(productsData);
         setCategories(categoriesData);
         setTotalPages(totalPages);
-
-        // Log state immediately after setting it
       } catch (error) {
         console.error('Error fetching data:', error.response ? error.response.data : error.message);
         setError("Failed to fetch data");
@@ -112,57 +109,10 @@ const Products = () => {
             {products.length ? (
               products.map((product) => (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
-                  <Box
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    padding={2}
-                    border="1px solid #ccc"
-                    borderRadius={5}
-                    height="100%"
-                  >
-                    <Box
-                      display="flex"
-                      flexDirection="column"
-                      alignItems="center"
-                      textAlign="center"
-                      width="100%"
-                      padding
-                    >
-                      <Typography variant="h5">Album: {product.name}</Typography>
-                      <Typography variant="body1">
-                        Release Year: {product.releaseYear}
-                      </Typography>
-                      <Typography variant="body1">${product.price}</Typography>
-                      <Typography variant="body1">
-                        {product.quantity} copies available
-                      </Typography>
-                      <Typography variant="body1">
-                        Category: {getCategoryName(product.categoryId)}
-                      </Typography>
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        style={{ width: 100, height: 100, objectFit: "contain" }}
-                      />
-                    </Box>
-                    <Box
-                      display="flex"
-                      flexDirection="column"
-                      alignItems="center"
-                      width="100%"
-                      marginTop={2}
-                    >
-                      <Button
-                        variant="contained"
-                        onClick={() => handleAddToCart(product.id)}
-                        sx={{ width: "80%", marginBottom: 1 }}
-                      >
-                        Add to Cart
-                      </Button>
-                    </Box>
-                  </Box>
+                  <ProductCard
+                    product={product}
+                    onAdd={() => handleAddToCart(product.id)}
+                  />
                 </Grid>
               ))
             ) : (
