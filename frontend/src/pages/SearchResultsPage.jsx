@@ -1,87 +1,75 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Pagination } from '@mui/material';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL;
-const SEARCH_API_URL = `${API_URL}/api/products/search`;
+import { getProductsBySearch } from '../api/productSearch';
+import { Typography, Box, CircularProgress, TextField, Grid } from '@mui/material';
+import ProductCard from '../components/ProductCard'; // Adjust the import path as needed
 
 const SearchResultsPage = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [results, setResults] = useState([]);
-  const [error, setError] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState(null);
+  const [filterTerm, setFilterTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const searchTerm = new URLSearchParams(window.location.search).get('query') || '';
 
   useEffect(() => {
-    const fetchSearchResults = async () => {
-      setIsLoading(true);
+    const fetchProducts = async () => {
       try {
-        const { data } = await axios.get(`${SEARCH_API_URL}?page=${currentPage}&limit=${itemsPerPage}`);
-        setResults(data.results || []);
-        setTotalPages(data.totalPages || 1);
-      } catch (error) {
-        console.error('Error fetching search results:', error);
-        setError('Failed to fetch search results');
-      } finally {
-        setIsLoading(false);
+        const data = await getProductsBySearch(searchTerm);
+        console.log('Fetched Products:', data);
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          setProducts([]);
+        }
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch products');
+        console.error('Error:', err);
+        setLoading(false);
       }
     };
 
-    fetchSearchResults();
-  }, [currentPage, itemsPerPage]);
+    fetchProducts();
+  }, [searchTerm]);
 
-  const handlePageChange = (event, value) => {
-    setCurrentPage(value);
+  if (loading) return <CircularProgress />;
+  if (error) return <div>{error}</div>;
+
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(filterTerm.toLowerCase())
+  );
+
+  const handleSubmit = (product) => {
+    // Implement submit functionality here
+    console.log('Submit Product:', product);
   };
 
   return (
-    <Box padding={2}>
+    <Box sx={{ padding: 2 }}>
       <Typography variant="h4" gutterBottom>
         Search Results
       </Typography>
-      {isLoading ? (
-        <Typography variant="body1">Loading...</Typography>
-      ) : error ? (
-        <Typography variant="body1" color="error">
-          {error}
-        </Typography>
-      ) : (
-        <>
-          <Grid container spacing={2} marginTop={2}>
-            {results.length ? (
-              results.map((result) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={result.id}>
-                  <Box
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    padding={2}
-                    border="1px solid #ccc"
-                    borderRadius={5}
-                    height="100%"
-                  >
-                    <Typography variant="h5">{result.name}</Typography>
-                    <Typography variant="body1">{result.description}</Typography>
-                    <Typography variant="body1">${result.price}</Typography>
-                  </Box>
-                </Grid>
-              ))
-            ) : (
-              <Typography>No results found</Typography>
-            )}
-          </Grid>
-          <Box display="flex" justifyContent="center" marginTop={2}>
-            <Pagination
-              count={totalPages}
-              page={currentPage}
-              onChange={handlePageChange}
-              color="primary"
-            />
-          </Box>
-        </>
-      )}
+      <TextField
+        variant="outlined"
+        placeholder="Filter products..."
+        size="small"
+        value={filterTerm}
+        onChange={(e) => setFilterTerm(e.target.value)}
+        sx={{ marginBottom: '16px' }}
+      />
+      <Grid container spacing={2}>
+        {filteredProducts.length === 0 ? (
+          <Typography variant="body1">No products found</Typography>
+        ) : (
+          filteredProducts.map(product => (
+            <Grid item key={product.id} xs={12} sm={6} md={4} lg={3}>
+              <ProductCard
+                product={product}
+                onSubmit={handleSubmit}
+              />
+            </Grid>
+          ))
+        )}
+      </Grid>
     </Box>
   );
 };
