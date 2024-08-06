@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 const router = express.Router();
 
 // Route handlers
+
 const getAllProducts = async (req, res) => {
     try {
         const products = await prisma.product.findMany(); 
@@ -109,8 +110,6 @@ const createProduct = async (req, res) => {
     }
 };
 
-
-
 const updateProduct = async (req, res) => {
     const { id } = req.params;
     const { name, releaseYear, price, quantity, categoryId, imageUrl } = req.body;
@@ -152,24 +151,6 @@ const updateProduct = async (req, res) => {
     }
 };
 
-const searchProducts = async (req, res) => {
-    try {
-        const { page = 1, limit = 10 } = req.query;
-        const products = await prisma.product.findMany({
-          skip: (page - 1) * limit,
-          take: Number(limit),
-          where: {
-           }
-        });
-        res.json(products);
-    } catch (error) {
-        console.error('Error fetching search results:', error);
-        res.status(500).json({ error: `Failed to fetch search results: ${error.message}` });
-    }
-};
-
-
-
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
     if (!id || isNaN(id)) {
@@ -195,13 +176,52 @@ const deleteProduct = async (req, res) => {
     }
 };
 
-// Define routes\
-router.get('/search', searchProducts)
-router.get('/', getAllProducts);
+const searchProducts = async (req, res) => {
+    const { query, page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+
+    try {
+        const [products, totalProducts] = await Promise.all([
+            prisma.product.findMany({
+                where: {
+                    name: {
+                        contains: query,
+                        mode: 'insensitive'
+                    }
+                },
+                skip: offset,
+                take: parseInt(limit, 10)
+            }),
+            prisma.product.count({
+                where: {
+                    name: {
+                        contains: query,
+                        mode: 'insensitive'
+                    }
+                }
+            })
+        ]);
+
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        res.json({
+            products,
+            totalPages,
+            currentPage: parseInt(page, 10),
+        });
+    } catch (error) {
+        console.error('Error searching products:', error);
+        res.status(500).json({ error: `Failed to search products: ${error.message}` });
+    }
+};
+
+// Define routes
+router.get('/search', searchProducts);
+router.get('/paginate', paginateProducts);
 router.get('/:id', getProductById);
 router.post('/', createProduct);
 router.put('/:id', updateProduct);
 router.delete('/:id', deleteProduct);
-router.get('/paginate', paginateProducts);
+router.get('/', getAllProducts);
 
 export default router;
