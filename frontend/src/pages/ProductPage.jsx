@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Button,
   Typography,
   Grid,
   Snackbar,
   Alert,
   Pagination,
+  MenuItem,
+  Select,
 } from '@mui/material';
 import axios from 'axios';
 import ProductCard from '../components/ProductCard';
 
 const PRODUCTS_API_URL = import.meta.env.VITE_PRODUCTS_API_URL;
-const CATEGORIES_API_URL = import.meta.env.VITE_CATEGORY_API_URL;
+const CATEGORY_API_URL = import.meta.env.VITE_CATEGORY_API_URL;
 const CART_API_URL = import.meta.env.VITE_CART_API_URL;
 
 const Products = () => {
@@ -31,8 +32,8 @@ const Products = () => {
       try {
         console.log('Fetching products and categories...');
         const [productsResponse, categoriesResponse] = await Promise.all([
-          axios.get(`${PRODUCTS_API_URL}?page=${currentPage}&limit=${itemsPerPage}`),
-          axios.get(CATEGORIES_API_URL),
+          axios.get(`${PRODUCTS_API_URL}/paginate?page=${currentPage}&limit=${itemsPerPage}`),
+          axios.get(CATEGORY_API_URL),
         ]);
 
         const productsData = productsResponse.data.products || productsResponse.data || [];
@@ -96,6 +97,11 @@ const Products = () => {
     setCurrentPage(value);
   };
 
+  const handleItemsPerPage = (event) => {
+    setItemsPerPage(event.target.value);
+    setCurrentPage(1);
+  }
+
   return (
     <Box padding={2}>
       <Typography variant="h4" gutterBottom>
@@ -125,7 +131,19 @@ const Products = () => {
               page={currentPage}
               onChange={handlePageChange}
               color="primary"
-            />
+              />
+              <Select variant = "standard"
+                value={itemsPerPage}
+                onChange={handleItemsPerPage}
+                displayEmpty
+                inputProps={{ 'aria-label': 'Items per page' }}
+                style={{marginLeft: '10px'}}
+                >
+              <MenuItem value={5}>5</MenuItem>
+              <MenuItem value={10}>10</MenuItem>
+              <MenuItem value={15}>15</MenuItem>
+              <MenuItem value={20}>20</MenuItem>
+              </Select>
           </Box>
         </>
       )}
