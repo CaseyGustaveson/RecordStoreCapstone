@@ -101,12 +101,12 @@ const CartPage = () => {
     };
 
     const handleRemoveItem = (itemId) => {
-        updateQuantity(itemId, 0); // Setting quantity to 0 triggers removal
+        updateQuantity(itemId, 0); 
     };
 
     return (
-        <Box padding={2}>
-            <Typography variant="h4" gutterBottom>
+        <Box padding={2} display = "flex" textAlign = "center" height = "80vh" flexDirection = "column" alignItems="center" justifyContent="center">
+            <Typography variant="h3" gutterBottom>
                 Your Cart
             </Typography>
             {loading ? (
@@ -141,6 +141,9 @@ const CartPage = () => {
                                         />
                                         <Typography variant="h6" marginTop={1}>
                                             {item.product.name}
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            Category: {item.product.category}
                                         </Typography>
                                         <Typography variant="body1">
                                             Price: ${item.product.price}

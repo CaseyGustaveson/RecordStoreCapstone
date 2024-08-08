@@ -40,8 +40,6 @@ const paginateProducts = async (req, res) => {
 
         const totalPages = Math.ceil(totalProducts / limit);
 
-        console.log(`Page: ${page}, Limit: ${limit}, Offset: ${offset}, Total Products: ${totalProducts}, Total Pages: ${totalPages}`);
-
         res.json({
             products,
             totalPages,
@@ -52,6 +50,7 @@ const paginateProducts = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch products' });
     }
 };
+
 
 const getProductById = async (req, res) => {
     const { id } = req.params;
