@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom';
 
 
 const ProfilePage = () => {
-    const [profile, setProfile] = useState({ firstname: '', lastname: '', email: '', password: '' });
-    const [isEditing, setIsEditing] = useState({ firstname: false, lastname: false, email: false, password: false });
+    const [profile, setProfile] = useState({ firstname: '', lastname: '', email: '', password: '', address: '' });
+    const [isEditing, setIsEditing] = useState({ firstname: false, lastname: false, email: false, password: false, address: false });
     const [message, setMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('success');
     const [showSnackbar, setShowSnackbar] = useState(false);
@@ -72,9 +72,11 @@ const ProfilePage = () => {
 
     return (
         <Container>
+            <Box display = "flex" justifyContent="center" flexDirection={"column"} alignItems = "center" mb = {2}>
             <Typography variant="h4" gutterBottom>
                 Profile
-            </Typography>
+                </Typography>
+                </Box>
             <form onSubmit={handleSubmit}>
                 <Box display = "flex" justifyContent="center" alignItems = "center"mb = {2}>
                     <TextField
@@ -103,7 +105,21 @@ const ProfilePage = () => {
                     <Button onClick={() => handleEditToggle('lastname')}>
                         {isEditing.lastname ? 'Save' : 'Edit'}
                     </Button>
-                    </Box>
+                </Box>
+                <Box display="flex" justifyContent="center" alignItems="center" mb={2}>
+                    <TextField
+                        label="Address"
+                        name="address"
+                        value={profile.address || ''}
+                        onChange={handleInputChange}
+                        disabled={!isEditing.address}
+                        halfWidth
+                        margin="normal"
+                    />
+                    <Button onClick={() => handleEditToggle('address')}>
+                        {isEditing.address ? 'Save' : 'Edit'}
+                    </Button>
+                </Box>
                     <Box display = "flex" justifyContent="center" alignItems = "center" mb = {2}>
                     <TextField
                         label="Email"

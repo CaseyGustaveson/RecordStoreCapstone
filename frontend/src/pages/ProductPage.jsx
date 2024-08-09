@@ -40,6 +40,10 @@ const Products = () => {
         const categoriesData = categoriesResponse.data.categories || categoriesResponse.data || [];
         const totalPages = productsResponse.data.totalPages || 1;
 
+        console.log('Products:', productsData);
+        console.log('Categories:', categoriesData);
+
+
         setProducts(productsData);
         setCategories(categoriesData);
         setTotalPages(totalPages);
@@ -117,6 +121,7 @@ const Products = () => {
                 <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
                   <ProductCard
                     product={product}
+                    categoryName={getCategoryName(product.categoryId)}
                     onAdd={() => handleAddToCart(product.id)}
                   />
                 </Grid>

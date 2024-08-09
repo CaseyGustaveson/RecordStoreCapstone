@@ -38,7 +38,26 @@ const getCategories = async (req, res) => {
       console.error('Error fetching categories:', error);
       res.status(500).json({ error: 'Failed to fetch categories' });
     }
-  };
+};
+  
+const getCategoriesById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const category = await prisma.category.findUnique({
+            where: { id: Number(id) }
+        });
+
+        if (!category) {
+            return res.status(404).json({ error: 'Category not found' });
+        }
+
+        res.json(category);
+    } catch (error) {
+        console.error('Error fetching category:', error);
+        res.status(500).json({ error: 'Failed to fetch category' });
+    }
+}
 
 const addCategory = async (req, res) => {
     const { name } = req.body;
@@ -73,6 +92,7 @@ const deleteCategory = async (req, res) => {
 }
 
 router.get('/', getCategories);
+router.get('/:id', getCategoriesById);
 router.post('/', authenticateToken, addCategory);
 router.delete('/:id', authenticateToken, deleteCategory);
 

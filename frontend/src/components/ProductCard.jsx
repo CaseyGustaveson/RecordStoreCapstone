@@ -1,14 +1,13 @@
 import React from 'react';
-import { Card, CardContent, Typography, CardMedia, Button, Stack } from '@mui/material';
+import { Card, CardContent, Typography, CardMedia, Button, Stack, TextField } from '@mui/material';
 
-const ProductCard = ({ product, onAdd, onSubmit, }) => {
+const ProductCard = ({ product, onAdd, onSubmit,categoryName }) => {
   const defaultImage = 'https://via.placeholder.com/200x140?text=No+Image';
 
-  // Check if product is defined and has the necessary properties
   const productName = product?.name || 'No Name';
   const productPrice = product?.price?.toFixed(2) || '0.00';
   const productReleaseYear = product?.releaseYear || 'Unknown';
-  const productCategory = product?.category?.name || 'Unknown';
+  const productCategory = categoryName || 'Unknown';
   const productQuantity = product?.quantity || 0;
   const productImageUrl = product?.imageUrl || defaultImage;
 
@@ -37,6 +36,7 @@ const ProductCard = ({ product, onAdd, onSubmit, }) => {
         <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', fontSize: '0.8rem' }}>
           {productQuantity} in stock
         </Typography>
+
       </CardContent>
       <CardContent sx={{ paddingTop: 0, paddingBottom: 1 }}>
         <Stack direction="row" spacing={0.5} justifyContent="center">
