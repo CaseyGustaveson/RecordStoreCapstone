@@ -8,8 +8,7 @@
   "scripts": {
     "start": "node backend/server.js",
     "prepare": "husky install",
-    "test": "echo \"No tests available.\" && exit 0",
-    "build": "echo"
+    "test": "echo \"No tests available.\" && exit 0"
   },
   "repository": {
     "type": "git",
