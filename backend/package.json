@@ -4,9 +4,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "prestart": "prisma generate",
-    "start": "node backend/server.js",
-    "build":"prisma generate && npm run start",
+    "prestart":"prisma generate",
+    "start": "node server.js",
     "postinstall": "prisma generate",
     "dev": "nodemon server.js",
     "seed": "node prisma/seedDB.js",
@@ -24,8 +23,5 @@
   "devDependencies": {
     "prisma": "^5.17.0",
     "nodemon": "^3.0.1"
-  },
-  "prisma": {
-    "schema": "backend/prisma/schema.prisma"
   }
 }
