@@ -1,6 +1,6 @@
 {
   "name": "record-store-capstone",
-  "private": true,
+  "private": false,
   "description": "NewRocrdCapstone",
   "version": "0.0.0",
   "main": "index.js",
