@@ -4,19 +4,13 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",  
+    "start": "node server.js",
+    "postinstall": "prisma generate",
     "dev": "nodemon server.js",
-    "build": "cd ../frontend && npm run build",
-    "postinstall": "cd ../frontend && npm install",
-    "heroku-postbuild": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "seed": "node prisma/seedDB.js",
-    "clear": "node prisma/clearDB.js"
+    "clear": "node prisma/clearDB.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "@emotion/react": "^11.12.0",
     "@emotion/styled": "^11.12.0",
