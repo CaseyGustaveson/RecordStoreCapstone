@@ -36,7 +36,6 @@ const ProductCard = ({ product, onAdd, onSubmit,categoryName }) => {
         <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', fontSize: '0.8rem' }}>
           {productQuantity} in stock
         </Typography>
-
       </CardContent>
       <CardContent sx={{ paddingTop: 0, paddingBottom: 1 }}>
         <Stack direction="row" spacing={0.5} justifyContent="center">
