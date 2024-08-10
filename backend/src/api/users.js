@@ -35,7 +35,7 @@ const getUserById = async (req, res) => {
 }
 
 const createUser = async (req, res) => {
-    const {  email,password,firstname,lastname,address,  } = req.body;
+    const {  email,password,firstname,lastname,phone,address,  } = req.body;
     try {
         if (!firstname ||!lastname || !email || !password|| !phone|| !address) {
             return res.status(400).json({ error: 'Required fields are missing' });
@@ -88,23 +88,12 @@ const deleteUsers = async (req, res) => {
     }
 }
 
-const pastOrders = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const orders = await prisma.order.findMany({
-            where: { userId: Number(id) }
-        });
-        res.json(orders);
-    } catch (error) {
-        console.error('Error fetching orders:', error);
-        res.status(500).json({ error: 'Failed to fetch orders' });
-    }
-}
 
 router.get('/', getAllUsers);
 router.get('/:id', getUserById);
+router.put('/:id', editUser);
 router.post('/', createUser);
 router.delete('/:id', deleteUsers);
-router.get('/:id/orders', pastOrders);
+
 
 export default router;
