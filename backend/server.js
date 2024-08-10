@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';  // This is necessary for __dirname in ES modules
 
@@ -32,11 +33,13 @@ app.use('/api/users', userRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/checkout', checkoutRoutes);
 
-app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
+    res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
 });
+
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
