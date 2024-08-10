@@ -2,7 +2,7 @@ import axios from 'axios';
 
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL, 
+    baseURL: import.meta.env.VITE_API_URL+"/api/users", 
 });
 
 
@@ -17,16 +17,6 @@ export const getUserProfile = async (token) => {
     }
 };
 
-export const getPastOrders = async (token) => {
-    try {
-        const response = await api.get('/profile/orders', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data;
-    } catch (error) {
-        throw error.response?.data || error.message;
-    }
-};
 
 //Admin only)
 export const getAllUsers = async (token) => {
@@ -39,3 +29,17 @@ export const getAllUsers = async (token) => {
         throw error.response?.data || error.message;
     }
 };
+
+export const removeUser = async (id, token) => {
+    try {
+        const response = await api.delete(`${id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+}
+
+
+

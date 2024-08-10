@@ -10,6 +10,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ProductsPage from "./pages/ProductPage";
 import AdminProducts from "./pages/Admin/AdminProducts";  
 import AdminCategories from "./pages/Admin/AdminCategories";
+import AdminUsers from "./pages/Admin/AdminUsers";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 
@@ -39,6 +40,7 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/categories" element={<AdminCategories />} />
+          <Route path ="/admin/users" element={<AdminUsers />} />
           <Route path="/checkout" element={<CheckoutPage />} />
         </Routes>
       </div>
