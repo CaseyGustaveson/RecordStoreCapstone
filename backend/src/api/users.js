@@ -35,14 +35,14 @@ const getUserById = async (req, res) => {
 }
 
 const createUser = async (req, res) => {
-    const {  email,password,firstname,lastname,phone,address,  } = req.body;
+    const {  email,password,firstname,lastname,phone,address,role  } = req.body;
     try {
         if (!firstname ||!lastname || !email || !password|| !phone|| !address) {
             return res.status(400).json({ error: 'Required fields are missing' });
         }
 
         const newUser = await prisma.user.create({
-            data: { firstname,lastname, email, password, phone, address }
+            data: { firstname,lastname, email, password, phone, address,role}
         });
         res.status(201).json(newUser);
     } catch (error) {
@@ -77,6 +77,7 @@ const editUser = async (req, res) => {
 
 const deleteUsers = async (req, res) => {
     const { id } = req.params;
+    console.log("Deleting user with ID:", id);  // Debugging line
     try {
         await prisma.user.delete({
             where: { id: Number(id) }

@@ -14,7 +14,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_URL = "http://localhost:3001/api/users";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const AdminUsers = () => {
   const navigate = useNavigate();
@@ -25,9 +25,9 @@ const AdminUsers = () => {
     password: "",
     firstname: "",
     lastname: "",
-    phoneNumber: "",
+    phone: "",
     address: "",
-    role: "ADMIN"
+    role: "USER",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -49,7 +49,7 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(API_URL, {
+      const response = await axios.get(API_URL + "/api/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (Array.isArray(response.data)) {
@@ -65,15 +65,25 @@ const AdminUsers = () => {
   };
 
   const addUser = async () => {
+    if (!newUser.role) {
+      setError("Role is required");
+      return;
+    }
     try {
-      const response = await axios.post(
-        API_URL,
-        { ...newUser, role: newUser.role.toUpperCase() },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setUsers([...users, response.data]);
-      setNewUser({ name: "", email: "", password: "", role: "" });
+      await axios.post(API_URL + "/api/users", newUser, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setNewUser({
+        email: "",
+        password: "",
+        firstname: "",
+        lastname: "",
+        phone: "",
+        address: "",
+        role: "USER",
+      });
       setSuccess("User added successfully");
+      fetchUsers();
     } catch (error) {
       setError("Failed to add user");
     }
@@ -81,7 +91,7 @@ const AdminUsers = () => {
 
   const deleteUser = async (id) => {
     try {
-      await axios.delete(`${API_URL}/${id}`, {
+      await axios.delete(API_URL + `/api/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(users.filter((user) => user.id !== id));
@@ -91,36 +101,86 @@ const AdminUsers = () => {
     }
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewUser((prevUser) => ({
+      ...prevUser,
+      [name]: value,
+    }));
+    console.log("updated user state",name,value);
+  };
+
   if (isLoading) {
     return <CircularProgress />;
   }
 
   return (
-    <Box padding={2}>
+    <Box padding={2} alignContent={"center"} flexDirection={"column"} >
       <Typography variant="h4" gutterBottom>
         Users
       </Typography>
       <Stack direction="row" spacing={2} alignItems="center">
         <TextField
-          label="Name"
-          value={newUser.name}
-          onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-        />
-        <TextField
+          type="email"
+          name="email"
           label="Email"
           value={newUser.email}
-          onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+          onChange={handleInputChange}
+          placeholder="Email"
+          required
         />
         <TextField
-          label="Password"
           type="password"
+          name="password"
+          label="Password"
           value={newUser.password}
-          onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+          onChange={handleInputChange}
+          placeholder="Password"
+          required
+        />
+        <TextField
+          type="text"
+          name="firstname"
+          label="First Name"
+          value={newUser.firstname}
+          onChange={handleInputChange}
+          placeholder="First Name"
+          required
+        />
+        <TextField
+          type="text"
+          name="lastname"
+          label="Last Name"
+          value={newUser.lastname}
+          onChange={handleInputChange}
+          placeholder="Last Name"
+          required
+        />
+        <TextField
+          type="text"
+          name="phone"
+          label="Phone"
+          value={newUser.phone}
+          onChange={handleInputChange}
+          placeholder="Phone"
+          required
+        />
+        <TextField
+          type="text"
+          name="address"
+          label="Address"
+          value={newUser.address}
+          onChange={handleInputChange}
+          placeholder="Address"
+          required
         />
         <FormControl>
           <Select
+            name="role"
             value={newUser.role}
-            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+            onChange={handleInputChange}
+            displayEmpty
+            required
           >
             <MenuItem value="USER">User</MenuItem>
             <MenuItem value="ADMIN">Admin</MenuItem>
