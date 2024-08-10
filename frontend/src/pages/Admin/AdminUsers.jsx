@@ -115,11 +115,11 @@ const AdminUsers = () => {
   }
 
   return (
-    <Box padding={2} alignContent={"center"} flexDirection={"column"} >
+    <Box padding={2} direction="row" display = "flex" flexDirection = "column" justifyContent={"center"} spacing={2} alignItems="center" >
       <Typography variant="h4" gutterBottom>
         Users
       </Typography>
-      <Stack direction="row" spacing={2} alignItems="center">
+      <Stack >
         <TextField
           type="email"
           name="email"
@@ -194,7 +194,7 @@ const AdminUsers = () => {
         {error && <Alert severity="error">{error}</Alert>}
         {success && <Alert severity="success">{success}</Alert>}
       </Box>
-      <Box marginTop={2}>
+      <Box marginTop={2} flexDirection="row" justifyContent={"center"}>
         {users.map((user) => (
           <Box
             key={user.id}
