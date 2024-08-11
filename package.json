@@ -1,12 +1,13 @@
 {
   "name": "record-store-capstone",
   "private": true,
-  "description": "NewRocrdCapstone",
+  "description": "NewRecordCapstone",
   "version": "0.0.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node /backend/server.js",
+    "start": "node backend/server.js",
+    "heroku-postbuild": "cd frontend && npm install && npm run build",
     "prepare": "husky install",
     "test": "echo \"No tests available.\" && exit 0"
   },
