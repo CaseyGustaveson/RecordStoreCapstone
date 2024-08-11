@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import ProductCard from "../../components/ProductCard";
 
 const PRODUCTS_API_URL = import.meta.env.VITE_PRODUCTS_API_URL;
 const CATEGORY_API_URL = import.meta.env.VITE_CATEGORY_API_URL;

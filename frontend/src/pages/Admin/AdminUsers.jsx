@@ -10,6 +10,7 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
+  Grid
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -49,7 +50,7 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(API_URL + "/api/users", {
+      const response = await axios.get(`${API_URL}/api/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (Array.isArray(response.data)) {
@@ -70,7 +71,7 @@ const AdminUsers = () => {
       return;
     }
     try {
-      await axios.post(API_URL + "/api/users", newUser, {
+      await axios.post(`${API_URL}/api/users`, newUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNewUser({
@@ -91,7 +92,7 @@ const AdminUsers = () => {
 
   const deleteUser = async (id) => {
     try {
-      await axios.delete(API_URL + `/api/users/${id}`, {
+      await axios.delete(`${API_URL}/api/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(users.filter((user) => user.id !== id));
@@ -107,7 +108,6 @@ const AdminUsers = () => {
       ...prevUser,
       [name]: value,
     }));
-    console.log("updated user state",name,value);
   };
 
   if (isLoading) {
@@ -115,11 +115,11 @@ const AdminUsers = () => {
   }
 
   return (
-    <Box padding={2} direction="row" display = "flex" flexDirection = "column" justifyContent={"center"} spacing={2} alignItems="center" >
+    <Box padding={2} display="flex" flexDirection="column" alignItems="center">
       <Typography variant="h4" gutterBottom>
         Users
       </Typography>
-      <Stack >
+      <Stack spacing={2} width="100%" maxWidth={600}>
         <TextField
           type="email"
           name="email"
@@ -128,6 +128,7 @@ const AdminUsers = () => {
           onChange={handleInputChange}
           placeholder="Email"
           required
+          fullWidth
         />
         <TextField
           type="password"
@@ -137,6 +138,7 @@ const AdminUsers = () => {
           onChange={handleInputChange}
           placeholder="Password"
           required
+          fullWidth
         />
         <TextField
           type="text"
@@ -146,6 +148,7 @@ const AdminUsers = () => {
           onChange={handleInputChange}
           placeholder="First Name"
           required
+          fullWidth
         />
         <TextField
           type="text"
@@ -155,6 +158,7 @@ const AdminUsers = () => {
           onChange={handleInputChange}
           placeholder="Last Name"
           required
+          fullWidth
         />
         <TextField
           type="text"
@@ -164,6 +168,7 @@ const AdminUsers = () => {
           onChange={handleInputChange}
           placeholder="Phone"
           required
+          fullWidth
         />
         <TextField
           type="text"
@@ -173,8 +178,9 @@ const AdminUsers = () => {
           onChange={handleInputChange}
           placeholder="Address"
           required
+          fullWidth
         />
-        <FormControl>
+        <FormControl fullWidth>
           <Select
             name="role"
             value={newUser.role}
@@ -186,7 +192,7 @@ const AdminUsers = () => {
             <MenuItem value="ADMIN">Admin</MenuItem>
           </Select>
         </FormControl>
-        <Button variant="contained" onClick={addUser}>
+        <Button variant="contained" onClick={addUser} fullWidth>
           Add User
         </Button>
       </Stack>
@@ -194,22 +200,43 @@ const AdminUsers = () => {
         {error && <Alert severity="error">{error}</Alert>}
         {success && <Alert severity="success">{success}</Alert>}
       </Box>
-      <Box marginTop={2} flexDirection="row" justifyContent={"center"}>
-        {users.map((user) => (
-          <Box
-            key={user.id}
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Typography>{user.name}</Typography>
-            <Typography>{user.email}</Typography>
-            <Typography>{user.role}</Typography>
-            <Button variant="contained" onClick={() => deleteUser(user.id)}>
-              Delete
-            </Button>
-          </Box>
-        ))}
+      <Box marginTop={2} width="100%" maxWidth={600}>
+        <Grid container spacing={1}>
+          <Grid item xs={4}>
+            <Typography variant="h6">Name</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography variant="h6">Email</Typography>
+          </Grid>
+          <Grid item xs={3}>
+            <Typography variant="h6">Role</Typography>
+          </Grid>
+       
+          {users.map((user) => (
+            <Grid container spacing={1} key={user.id} alignItems="center">
+              <Grid item xs={4}>
+                <Typography variant="body1">
+                  {user.firstname} {user.lastname}
+                </Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography variant="body1" sx={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                  {user.email}
+                </Typography>
+              </Grid>
+              <Grid item xs={3}>
+                <Typography variant="body1" sx={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                  {user.role}
+                </Typography>
+              </Grid>
+              <Grid item xs={1} container justifyContent="center">
+                <Button variant="contained" color="error" onClick={() => deleteUser(user.id)}>
+                  Delete
+                </Button>
+              </Grid>
+            </Grid>
+          ))}
+        </Grid>
       </Box>
     </Box>
   );
