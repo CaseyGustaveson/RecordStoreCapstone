@@ -12,11 +12,15 @@ const ProductCard = ({ product, onAdd, onSubmit,categoryName }) => {
   const productImageUrl = product?.imageUrl || defaultImage;
 
   return (
-    <Card sx={{ width: 160, borderRadius: 2, boxShadow: 3, margin: 1 }}>
+    <Card sx={{ width: 200, borderRadius: 2, boxShadow: 3, margin: 1 }}>
       <CardMedia
         component="img"
         alt={productName}
-        height="100"
+        width='50%'
+        height="150"
+        objectFit='contain'
+        borderRadius='8px'
+        marginBottom='8'
         image={productImageUrl} 
         sx={{ objectFit: 'cover' }} 
       />
