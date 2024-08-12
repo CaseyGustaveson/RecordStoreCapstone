@@ -2,6 +2,13 @@
   "version": 2,
   "builds": [
     {
+      "src": "backend/package.json",
+      "use": "@vercel/node",
+      "config": {
+        "buildCommand": "npm run build"
+      }
+    },
+    {
       "src": "backend/server.js",
       "use": "@vercel/node"
     }
