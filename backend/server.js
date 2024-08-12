@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './src/api/auth.js'; 
 import categoryRoutes from './src/api/categories.js';
@@ -21,6 +22,8 @@ app.use(cors());
 
 
 app.use('/api/auth', authRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/categories', categoryRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);

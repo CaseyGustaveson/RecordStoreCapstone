@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -15,7 +15,6 @@ async function resetDatabase() {
 async function seedDatabase() {
   try {
     await resetDatabase();
-
 
     // Create categories
     const categoriesData = Array.from({ length: 3 }, (_, index) => ({
@@ -65,7 +64,6 @@ async function seedDatabase() {
         }
       ];
 
-
       const createdUsers = [];
       for (const user of users) {
         const createdUser = await prisma.user.create({
@@ -77,16 +75,13 @@ async function seedDatabase() {
       return createdUsers; // Return the created users array
     };
 
-
     // Wait for seedUsers to complete and get the created users
     const createdUsers = await seedUsers();
     console.log("Users created:", createdUsers);
 
     // Create products
     const productsData = createdCategories.map((category, index) => ({
-    const productsData = createdCategories.map((category, index) => ({
       name: `Product ${index + 1}`,
-      releaseYear: `Release Year ${index + 1}`,
       releaseYear: `Release Year ${index + 1}`,
       price: (index + 1) * 10 - 0.01,
       quantity: index + 1,
@@ -128,16 +123,7 @@ async function seedDatabase() {
   }
   finally {
     await prisma.$disconnect();
-  
-
-    seedDatabase();
-  }
-  catch (error) {
-    console.error(error);
-  }
-  finally {
-    await prisma.$disconnect();
   }
 }
 
-seedDatabase();
+
