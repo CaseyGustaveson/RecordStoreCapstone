@@ -14,13 +14,5 @@
       "src": "/(.*)",
       "dest": "backend/server.js"
     }
-  ],
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
-    },
-    "commands": {
-      "build": "npm run build"
-    }
-  }
+  ]
 }
