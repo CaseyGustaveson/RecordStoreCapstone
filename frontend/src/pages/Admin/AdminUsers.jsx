@@ -115,11 +115,11 @@ const AdminUsers = () => {
   }
 
   return (
-    <Box padding={2} display="flex" flexDirection="column" alignItems="center">
+    <Box padding={2} direction="row" display = "flex" flexDirection = "column" justifyContent={"center"} spacing={2} alignItems="center" >
       <Typography variant="h4" gutterBottom>
         Users
       </Typography>
-      <Stack spacing={2} width="100%" maxWidth={600}>
+      <Stack >
         <TextField
           type="email"
           name="email"
@@ -200,43 +200,22 @@ const AdminUsers = () => {
         {error && <Alert severity="error">{error}</Alert>}
         {success && <Alert severity="success">{success}</Alert>}
       </Box>
-      <Box marginTop={2} width="100%" maxWidth={600}>
-        <Grid container spacing={1}>
-          <Grid item xs={4}>
-            <Typography variant="h6">Name</Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Typography variant="h6">Email</Typography>
-          </Grid>
-          <Grid item xs={3}>
-            <Typography variant="h6">Role</Typography>
-          </Grid>
-       
-          {users.map((user) => (
-            <Grid container spacing={1} key={user.id} alignItems="center">
-              <Grid item xs={4}>
-                <Typography variant="body1">
-                  {user.firstname} {user.lastname}
-                </Typography>
-              </Grid>
-              <Grid item xs={4}>
-                <Typography variant="body1" sx={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                  {user.email}
-                </Typography>
-              </Grid>
-              <Grid item xs={3}>
-                <Typography variant="body1" sx={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                  {user.role}
-                </Typography>
-              </Grid>
-              <Grid item xs={1} container justifyContent="center">
-                <Button variant="contained" color="error" onClick={() => deleteUser(user.id)}>
-                  Delete
-                </Button>
-              </Grid>
-            </Grid>
-          ))}
-        </Grid>
+      <Box marginTop={2} flexDirection="row" justifyContent={"center"}>
+        {users.map((user) => (
+          <Box
+            key={user.id}
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Typography>{user.name}</Typography>
+            <Typography>{user.email}</Typography>
+            <Typography>{user.role}</Typography>
+            <Button variant="contained" onClick={() => deleteUser(user.id)}>
+              Delete
+            </Button>
+          </Box>
+        ))}
       </Box>
     </Box>
   );
