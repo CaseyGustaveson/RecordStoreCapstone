@@ -233,12 +233,13 @@ const searchProducts = async (req, res) => {
 };
 
 // Define routes
+router.get('/', getAllProducts);
 router.get('/search', searchProducts);
 router.get('/paginate', paginateProducts);
 router.get('/:id', getProductById);
 router.post('/', createProduct);
 router.put('/:id', updateProduct);
 router.delete('/:id', deleteProduct);
-router.get('/', getAllProducts);
+
 
 export default router;
