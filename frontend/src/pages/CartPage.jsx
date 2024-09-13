@@ -8,18 +8,21 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  Paper,
+  IconButton
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const API_URL = import.meta.env.VITE_API_URL;
-const CART_API_URL = `${API_URL}/api/cart`;
 
 const CartPage = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openAlert, setOpenAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [totalCost, setTotalCost] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,7 +39,7 @@ const CartPage = () => {
   const fetchCartItems = async (token) => {
     setLoading(true);
     try {
-      const response = await axios.get(CART_API_URL, {
+      const response = await axios.get(`${API_URL}/api/cart`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -51,11 +54,22 @@ const CartPage = () => {
     }
   };
 
+  useEffect(() => {
+    const calculateTotalCost = () => {
+      const total = cartItems.reduce((sum, item) => {
+        return sum + item.product.price * item.quantity;
+      }, 0);
+      setTotalCost(total);
+    };
+
+    calculateTotalCost();
+  }, [cartItems]);
+
   const updateQuantity = async (itemId, newQuantity) => {
     const token = localStorage.getItem('token');
     try {
       if (newQuantity <= 0) {
-        await axios.delete(`${CART_API_URL}/${itemId}`, {
+        await axios.delete(`${API_URL}/api/cart/${itemId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -64,7 +78,7 @@ const CartPage = () => {
         setCartItems(cartItems.filter((item) => item.id !== itemId));
       } else {
         await axios.put(
-          `${CART_API_URL}/${itemId}`,
+          `${API_URL}/api/cart/${itemId}`,
           { quantity: newQuantity },
           {
             headers: {
@@ -131,9 +145,9 @@ const CartPage = () => {
       alignItems="center"
       justifyContent="center"
       minHeight="100vh"
-      sx={{ backgroundColor: '#f5f5f5' }}
+      sx={{ backgroundColor: '#fafafa' }}
     >
-      <Typography variant="h3" gutterBottom>
+      <Typography variant="h3" gutterBottom color="primary">
         Your Cart
       </Typography>
       {loading ? (
@@ -144,26 +158,15 @@ const CartPage = () => {
         </Typography>
       ) : (
         <>
-          <Grid container spacing={3} marginTop={2}>
+          <Grid container spacing={3} justifyContent="center">
             {cartItems.map((item) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
-                <Box
-                  display="flex"
-                  flexDirection="column"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  padding={2}
-                  border="1px solid #ddd"
-                  borderRadius={8}
-                  bgcolor="#fff"
-                  boxShadow={3}
-                >
+              <Grid item xs={12} sm={6} md={4} lg={3} key={item.id} display="flex" justifyContent="center">
+                <Paper elevation={3} sx={{ padding: 2, borderRadius: 2, width: '100%', maxWidth: 300 }}>
                   <Box
                     display="flex"
                     flexDirection="column"
                     alignItems="center"
                     textAlign="center"
-                    width="100%"
                   >
                     <img
                       src={item.product.imageUrl}
@@ -176,10 +179,10 @@ const CartPage = () => {
                         marginBottom: 8,
                       }}
                     />
-                    <Typography variant="h6" marginTop={1}>
+                    <Typography variant="h6" gutterBottom>
                       {item.product.name}
                     </Typography>
-                    <Typography variant="body1">
+                    <Typography variant="body2" color="textSecondary">
                       Category: {item.product.category}
                     </Typography>
                     <Typography variant="body1" fontWeight="bold">
@@ -197,27 +200,31 @@ const CartPage = () => {
                         inputProps={{ min: 0 }}
                       />
                     </Box>
-                    <Button
-                      variant="outlined"
+                    <IconButton
                       color="error"
                       onClick={() => handleRemoveItem(item.id)}
-                      sx={{ marginTop: 1 }}
+                      sx={{ marginTop: 2 }}
                     >
-                      Remove
-                    </Button>
+                      <DeleteIcon />
+                    </IconButton>
                   </Box>
-                </Box>
+                </Paper>
               </Grid>
             ))}
           </Grid>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleCheckout}
-            sx={{ marginTop: 3, padding: '10px 20px' }}
-          >
-            Checkout
-          </Button>
+          <Box marginTop={3} width="100%" maxWidth={600} textAlign="center">
+            <Typography variant="h5">
+              Total: ${totalCost.toFixed(2)}
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleCheckout}
+              sx={{ marginTop: 2, padding: '10px 20px' }}
+            >
+              Checkout
+            </Button>
+          </Box>
         </>
       )}
       <Snackbar
