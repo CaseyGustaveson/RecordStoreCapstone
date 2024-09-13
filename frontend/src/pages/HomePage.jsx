@@ -1,10 +1,10 @@
 import React from 'react';
 import { Container, Typography, Button, Grid } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const HomePage = () => {
   const styles = {
     backgroundContainer: {
-      background: 'url(/path/to/your/background.jpg) no-repeat center center fixed',
       backgroundSize: 'cover',
       minHeight: '100vh',
       display: 'flex',
@@ -35,9 +35,9 @@ const HomePage = () => {
         <Typography variant="h6" paragraph>
           Shop our wide collection of records!
         </Typography>
-        <Button variant="contained" color="primary" size="large" style={styles.button} href="/products">
-          Shop Now
-        </Button>
+    <Button component={Link} to="/products" variant="contained" color="primary" size="large" style={styles.button}>
+  Shop Now
+</Button>
         <Grid container spacing={2} sx={{ mt: 4 }}>
           <Grid item xs={12} sm={6}>
           </Grid>
